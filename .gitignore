@@ -1,0 +1,54 @@
+# Arquivos binários e compilados
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+# Arquivos de depuração e logs
+*.dSYM/
+*.pdb
+*.log
+
+# Arquivos gerados por compilação
+*.class
+*.elf
+
+# Arquivos de dependências gerados pelo compilador
+*.d
+
+# Makefiles e CMake temporários
+Makefile
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+build/
+Debug/
+Release/
+
+# CodeBlocks
+*.depend
+*.layout
+*.cbp
+*.workspace
+
+# CLion
+.idea/
+*.iml
+
+# Visual Studio
+.vscode/
+*.sln
+*.vcxproj*
+ipch/
+*.ncb
+*.sdf
+*.opensdf
+
+# Outros arquivos de sistema
+Thumbs.db
+.DS_Store
