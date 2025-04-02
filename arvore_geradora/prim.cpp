@@ -23,7 +23,7 @@ public:
     listaAdjacencia.resize(v);
   }
 
-  // implementação para um grafo nao direcionado
+  // implementação para um grafo nao direcionado (u->v e v->u)
   void adicionarAresta(int u, int v, int peso) { // vertice u------peso------vertice v
     cout << "Adicionando aresta " << u << " - " << v << " (Peso: " << peso << ")\n";
     listaAdjacencia[u].push_back({peso, v});
