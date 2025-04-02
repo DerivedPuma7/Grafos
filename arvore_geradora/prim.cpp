@@ -25,8 +25,19 @@ public:
 
   // implementação para um grafo nao direcionado
   void adicionarAresta(int u, int v, int peso) { // vertice u------peso------vertice v
+    cout << "Adicionando aresta " << u << " - " << v << " (Peso: " << peso << ")\n";
     listaAdjacencia[u].push_back({peso, v});
     listaAdjacencia[v].push_back({peso, u});
+  }
+
+  void imprimir() {
+    for (int i = 0; i < numeroVertices; i++) {
+      cout << i << " → ";
+      for (auto [peso, vizinho] : listaAdjacencia[i]) {
+        cout << "{" << peso << ", " << vizinho << "} ";
+      }
+      cout << endl;
+    }
   }
 };
 
@@ -62,5 +73,26 @@ vector<tuple<int, int, int>> prim(Grafo& grafo, int verticeInicial) {
 }
 
 int main() {
+  Grafo g(7);
 
+  g.adicionarAresta(0, 1, 7);
+  g.adicionarAresta(0, 3, 5);
+  g.adicionarAresta(1, 2, 8);
+  g.adicionarAresta(1, 3, 9);
+  g.adicionarAresta(1, 4, 7);
+  g.adicionarAresta(2, 4, 5);
+  g.adicionarAresta(3, 5, 6);
+  g.adicionarAresta(3, 4, 15);
+  g.adicionarAresta(4, 5, 8);
+  g.adicionarAresta(4, 6, 9);
+  g.adicionarAresta(5, 6, 11);
+
+  g.imprimir();
+
+  vector<tuple<int, int, int>> mst = prim(g, 0);
+
+  cout << "Arestas da Árvore Geradora Mínima:\n";
+  for (auto [u, v, peso] : mst) {
+      cout << u << " - " << v << " (Peso: " << peso << ")\n";
+  }
 }
