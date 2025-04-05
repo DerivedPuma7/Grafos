@@ -1,0 +1,47 @@
+O problema base pode ser definido em um grafo conexo G = (V, E), onde V é
+o conjunto de nós e E o conjunto de arestas. Os nós representam intersecções
+(ou esquinas) em uma região (urbana ou rural), enquanto as arestas são as vias
+de acesso (ruas, avenidas, etc). Um subconjunto ER ⊆ E dessas arestas deve
+ser atendido. Seja n = |ER| o número de serviços. Uma aresta (i, j) ∈ E
+pode ser percorrida qualquer número de vezes com um custo de cij cada vez, e
+uma demanda de qij está associada a qualquer aresta (i, j) ∈ ER. O problema
+visa encontrar um conjunto de viagens de veículos com custo mínimo,
+tal que cada viagem comece e termine em um nó depósito v0 ∈ V , cada aresta
+requerida seja atendida por uma única viagem, e a demanda total para qualquer
+veículo não exceda uma capacidade Q.
+A variação estudada no trabalho prático redefine G, em particular, como um
+multigrafo conectado G = (V, E, A), onde V é o conjunto de nós, E o conjunto
+1
+de arestas e A o conjunto de arcos (vias de mão única). Serviços são requeridos
+para um subconjunto de nós VR ⊆ V , arestas ER ⊆ E e arcos AR ⊆ A, tal que
+n = |VR| + |ER| + |AR|.
+
+
+---
+
+
+Os objetivos da Etapa 1 consistem em:
+• representar a modelagem do problema por meio de estruturas de dados
+em grafos;
+• implementação da leitura dos dados;
+• cálculo de estatísticas a respeito dos grafos.
+Para o cálculo das estatísticas, o grupo deve implementar funções que retornem as seguintes informações.
+1. Quantidade de vértices;
+2. Quantidade de arestas;
+3. Quantidade de arcos;
+4. Quantidade de vértices requeridos;
+5. Quantidade de arestas requeridas;
+6. Quantidade de arcos requeridos;
+7. Densidade do grafo (order strength);
+8. Componentes conectados;
+9. Grau mínimo dos vértices;
+10. Grau máximo dos vértices;
+11. Intermediação - A Intermediação de um nó mede a frequência com que
+ele aparece nos caminhos mais curtos entre outros nós. Não é necessário
+calcular outros caminhos mais curtos alternativos;
+12. Caminho médio;
+13. Diâmetro.
+Importante: muitas dessas métricas utilizam os resultados da matriz de
+caminhos mais curtos de múltiplas fontes. Assim, como um dos produtos da
+Etapa 1, é necessário desenvolver o algoritmo que gera tal matriz, assim como
+a matriz de predecessores
