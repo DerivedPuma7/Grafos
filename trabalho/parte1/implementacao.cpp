@@ -9,6 +9,22 @@ using namespace std;
 
 typedef vector<tuple<int, int, bool>> ListaAdjacencia; // tuple<destino, peso, required>
 
+/*
+1. Quantidade de vértices; ✅
+2. Quantidade de arestas; ✅
+3. Quantidade de arcos; ✅
+4. Quantidade de vértices requeridos; ✅
+5. Quantidade de arestas requeridas; ✅
+6. Quantidade de arcos requeridos; ✅
+7. Densidade do grafo (order strength);
+8. Componentes conectados;
+9. Grau mínimo dos vértices;
+10. Grau máximo dos vértices;
+11. Intermediação - A Intermediação de um nó mede a frequência com que ele aparece nos caminhos mais curtos entre outros nós. Não é necessário calcular outros caminhos mais curtos alternativos;
+12. Caminho médio;
+13. Diâmetro.
+*/
+
 class Grafo  {
 private:
   int quantidadeVertices;
@@ -99,9 +115,9 @@ public:
   }
 
   int** floydWarshall() {
-    int** matriz = this->matrizW;
     preencheMatrizW();
     preenchePred();
+    int** matriz = this->matrizW;
 
     for(int k = 0; k < this->quantidadeVertices; k++) {
       for(int i = 0; i < this->quantidadeVertices; i++) {
