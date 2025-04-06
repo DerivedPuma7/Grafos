@@ -23,7 +23,7 @@ typedef pair<int**, int**> WAndPred; // pair<W, pred>
 10. Grau máximo dos vértices; ✅
 11. Intermediação - A Intermediação de um nó mede a frequência com que ele aparece nos caminhos mais curtos entre outros nós. Não é necessário calcular outros caminhos mais curtos alternativos; ✅
 12. Caminho médio; ✅
-13. Diâmetro.
+13. Diâmetro. ✅
 */
 
 class Grafo  {
