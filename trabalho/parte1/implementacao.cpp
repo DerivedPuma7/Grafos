@@ -362,6 +362,7 @@ public:
 
   /**
    * representa a média das distâncias dos caminhos mais curtos entre todos os pares de nós conectados no grafo
+   * Implementado com IA ⚠️
    */
   double getCaminhoMedio() {
     double soma = 0.0;
@@ -379,6 +380,23 @@ public:
     return contagem > 0 ? soma / contagem : 0.0;
   }
 
+  /**
+   * representa o maior caminho mais curto entre qualquer par de nós no grafo
+   * grafos com diâmetro grande podem precisar de múltiplos depósitos
+   * Implementado com IA ⚠️
+   */
+  int calcularDiametro() {
+    int diametro = 0;
+    
+    for(int i = 0; i < this->quantidadeVertices; i++) {
+      for(int j = 0; j < this->quantidadeVertices; j++) {
+        if(i != j && this->matrizW[i][j] != numeric_limits<int>::max()) {
+          diametro = max(diametro, this->matrizW[i][j]);
+        }
+      }
+    }
+    return diametro;
+  }
 };
 
 int main() {
