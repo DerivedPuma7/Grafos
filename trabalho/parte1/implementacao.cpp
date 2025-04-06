@@ -114,30 +114,24 @@ public:
     this->verticesRequeridos.insert(vertice);
   }
 
-  int** floydWarshall() {
+  void floydWarshall() {
     this->preencheMatrizW();
-    this->imprimirMatrizW();
-
     this->preenchePred();
-    this->imprimirPred();
-
-    int** matriz = this->matrizW;
 
     for(int k = 0; k < this->quantidadeVertices; k++) {
       for(int i = 0; i < this->quantidadeVertices; i++) {
         for(int j = 0; j < this->quantidadeVertices; j++) {
           if(
-            matriz[i][k] != numeric_limits<int>::max() && 
-            matriz[k][j] != numeric_limits<int>::max() &&
-            matriz[i][j] > matriz[i][k] + matriz[k][j]
+            this->matrizW[i][k] != numeric_limits<int>::max() && 
+            this->matrizW[k][j] != numeric_limits<int>::max() &&
+            this->matrizW[i][j] > this->matrizW[i][k] + this->matrizW[k][j]
           ) {
-            matriz[i][j] = matriz[i][k] + matriz[k][j];
-            pred[i][j] = pred[k][j];
+            this->matrizW[i][j] = this->matrizW[i][k] + this->matrizW[k][j];
+            this->pred[i][j] = this->pred[k][j];
           }
         }
       }
     }
-    return matriz;
   }
 
   void imprimirGrafo() {
@@ -152,14 +146,14 @@ public:
     cout << endl;
   }
 
-  void imprimirMatrizW() {
+  void imprimirMatrizW(int** matriz) {
     cout << "\nMatriz W:" << endl;
     for (int i = 0; i < this->quantidadeVertices; i++) {
       for (int j = 0; j < this->quantidadeVertices; j++) {
-        if (this->matrizW[i][j] == numeric_limits<int>::max()) {
+        if (matriz[i][j] == numeric_limits<int>::max()) {
           cout << "INF ";
         } else {
-          cout << this->matrizW[i][j] << " ";
+          cout << matriz[i][j] << " ";
         }
       }
       cout << endl;
@@ -167,14 +161,14 @@ public:
     cout << endl;
   }
 
-  void imprimirPred() {
+  void imprimirPred(int** matriz) {
     cout << "\nPred:" << endl;
     for (int i = 0; i < this->quantidadeVertices; i++) {
       for (int j = 0; j < this->quantidadeVertices; j++) {
-        if (this->pred[i][j] == -1) {
+        if (matriz[i][j] == -1) {
           cout << "- ";
         } else {
-          cout << this->pred[i][j] << " ";
+          cout << matriz[i][j] << " ";
         }
       }
       cout << endl;
@@ -205,6 +199,10 @@ public:
   int getQuantidadeVerticesRequeridos() {
     return this->verticesRequeridos.size();
   }
+
+  pair<int**, int**> getWAndPred() {
+    return {this->matrizW, this->pred};
+  }
 };
 
 int main() {
@@ -229,7 +227,10 @@ int main() {
   grafo.imprimirGrafo();
   grafo.floydWarshall();
 
-
+  pair<int**, int**> wAndPred = grafo.getWAndPred();
+  
+  grafo.imprimirMatrizW(wAndPred.first);
+  grafo.imprimirPred(wAndPred.second);
 
   return 0;
 }
