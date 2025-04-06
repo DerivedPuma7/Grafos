@@ -22,7 +22,7 @@ typedef pair<int**, int**> WAndPred; // pair<W, pred>
 9. Grau mínimo dos vértices; ✅
 10. Grau máximo dos vértices; ✅
 11. Intermediação - A Intermediação de um nó mede a frequência com que ele aparece nos caminhos mais curtos entre outros nós. Não é necessário calcular outros caminhos mais curtos alternativos; ✅
-12. Caminho médio;
+12. Caminho médio; ✅
 13. Diâmetro.
 */
 
@@ -321,8 +321,9 @@ public:
   /**
    * intermediação representa os pontos principais na malha de caminhos
    * nós com alta intermediação são cruciais
+   * Implementado com IA ⚠️
    */
-  vector<double> calcularIntermediacao() {
+  vector<double> getIntermediacao() {
     vector<double> intermediacao(this->quantidadeVertices, 0.0);
     
     for(int s = 0; s < this->quantidadeVertices; s++) {
@@ -357,7 +358,26 @@ public:
     }
     
     return intermediacao;
-}
+  }
+
+  /**
+   * representa a média das distâncias dos caminhos mais curtos entre todos os pares de nós conectados no grafo
+   */
+  double getCaminhoMedio() {
+    double soma = 0.0;
+    int contagem = 0;
+    
+    for(int i = 0; i < this->quantidadeVertices; i++) {
+      for(int j = 0; j < this->quantidadeVertices; j++) {
+        if(i != j && this->matrizW[i][j] != numeric_limits<int>::max()) {
+          soma += this->matrizW[i][j];
+          contagem++;
+        }
+      }
+    }
+    
+    return contagem > 0 ? soma / contagem : 0.0;
+  }
 
 };
 
@@ -395,11 +415,13 @@ int main() {
 
   // cout << "Componentes conectados: " << grafo.getComponentesConectados() << endl;
 
-  vector<double> intermediacao = grafo.calcularIntermediacao();
+  vector<double> intermediacao = grafo.getIntermediacao();
   cout << "\nIntermediação dos nós:" << endl;
   for(int i = 0; i < grafo.getQuantidadeVertices(); i++) {
     cout << "Nó " << i << ": " << intermediacao[i] << endl;
   }
+
+  cout << "\nCaminho médio: " << grafo.getCaminhoMedio() << endl;
 
   return 0;
 }
