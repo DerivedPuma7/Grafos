@@ -420,26 +420,32 @@ int main() {
 
   grafo.imprimirGrafo();
   grafo.floydWarshall();
+  
+  WAndPred wAndPred = grafo.getWAndPred();
+  grafo.imprimirMatrizW(wAndPred.first);
+  grafo.imprimirPred(wAndPred.second);
 
-  // Grau grau = grafo.getGrau();
-  // cout << "Grau mínimo: " << grau.first << endl;
-  // cout << "Grau máximo: " << grau.second << endl;
-
-  // cout << "Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
-  // cout << "Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
-
-  // cout << "Grau minimo de saída: " << grafo.getGrauMinSaida() << endl;
-  // cout << "Grau maximo de saída: " << grafo.getGrauMaxSaida() << endl;
-
-  // cout << "Componentes conectados: " << grafo.getComponentesConectados() << endl;
-
+  cout << "1- Quantidade de vértices: " << grafo.getQuantidadeVertices() << endl;
+  cout << "2- Quantidade de arestas: " << grafo.getQuantidadeArestas() << endl;
+  cout << "3- Quantidade de arcos: " << grafo.getQuantidadeArcos() << endl;
+  cout << "4- Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
+  cout << "5- Quantidade de arestas requeridas: " << grafo.getQuantidadeArestasRequeridas() << endl;
+  cout << "6- Quantidade de arcos requeridos: " << grafo.getQuantidadeArcosRequeridos() << endl;
+  cout << "7- Densidade do grafo: " << grafo.getDensidadeGrafo() << endl;
+  cout << "8- Componentes conectados: " << grafo.getComponentesConectados() << endl;
+  cout << "9- Grau: " << endl;
+  cout << "\t9.1- Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
+  cout << "\t9.2- Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
+  cout << "\t9.3- Grau mínimo de saída: " << grafo.getGrauMinSaida() << endl;
+  cout << "\t9.4- Grau máximo de saída: " << grafo.getGrauMaxSaida() << endl;
+  cout << "10- Intermediação: " << endl;
   vector<double> intermediacao = grafo.getIntermediacao();
-  cout << "\nIntermediação dos nós:" << endl;
+  cout << "\tIntermediação dos nós:" << endl;
   for(int i = 0; i < grafo.getQuantidadeVertices(); i++) {
-    cout << "Nó " << i << ": " << intermediacao[i] << endl;
+    cout << "\tNó " << i << ": " << intermediacao[i] << endl;
   }
-
-  cout << "\nCaminho médio: " << grafo.getCaminhoMedio() << endl;
+  cout << "11- Caminho médio: " << grafo.getCaminhoMedio() << endl;
+  cout << "12- Diâmetro: " << grafo.calcularDiametro() << endl;
 
   return 0;
 }
