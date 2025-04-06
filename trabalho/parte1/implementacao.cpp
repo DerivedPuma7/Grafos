@@ -301,11 +301,11 @@ public:
         fila.push(i);
         visitado[i] = true;
 
-        while (!fila.empty()) {
+        while(!fila.empty()) {
           int atual = fila.front();
           fila.pop();
 
-          for (auto [vizinho, peso, required] : this->listaAdjacencia[atual]) {
+          for(auto [vizinho, peso, required] : this->listaAdjacencia[atual]) {
             if (!visitado[vizinho]) {
               visitado[vizinho] = true;
               fila.push(vizinho);
