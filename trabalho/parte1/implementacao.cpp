@@ -21,7 +21,7 @@ typedef pair<int**, int**> WAndPred; // pair<W, pred>
 8. Componentes conectados; ✅
 9. Grau mínimo dos vértices; ✅
 10. Grau máximo dos vértices; ✅
-11. Intermediação - A Intermediação de um nó mede a frequência com que ele aparece nos caminhos mais curtos entre outros nós. Não é necessário calcular outros caminhos mais curtos alternativos;
+11. Intermediação - A Intermediação de um nó mede a frequência com que ele aparece nos caminhos mais curtos entre outros nós. Não é necessário calcular outros caminhos mais curtos alternativos; ✅
 12. Caminho médio;
 13. Diâmetro.
 */
@@ -318,6 +318,47 @@ public:
     return componentes;
   }
 
+  /**
+   * intermediação representa os pontos principais na malha de caminhos
+   * nós com alta intermediação são cruciais
+   */
+  vector<double> calcularIntermediacao() {
+    vector<double> intermediacao(this->quantidadeVertices, 0.0);
+    
+    for(int s = 0; s < this->quantidadeVertices; s++) {
+      for(int t = 0; t < this->quantidadeVertices; t++) {
+        if(s == t) continue;
+        
+        // Reconstruir o caminho mais curto de s para t
+        vector<int> caminho;
+        int atual = t;
+        while(atual != s && atual != -1) {
+          caminho.push_back(atual);
+          atual = this->pred[s][atual];
+        }
+        if(atual == -1) continue; // não há caminho
+        caminho.push_back(s);
+        
+        // Contar os nós intermediários (excluindo s e t)
+        for(int v : caminho) {
+          if(v != s && v != t) {
+            intermediacao[v] += 1.0;
+          }
+        }
+      }
+    }
+    
+    // Normalizar (opcional, dependendo da definição)
+    int pares = this->quantidadeVertices * (this->quantidadeVertices - 1);
+    if(pares > 0) {
+      for(int i = 0; i < this->quantidadeVertices; i++) {
+        intermediacao[i] /= pares;
+      }
+    }
+    
+    return intermediacao;
+}
+
 };
 
 int main() {
@@ -346,13 +387,19 @@ int main() {
   // cout << "Grau mínimo: " << grau.first << endl;
   // cout << "Grau máximo: " << grau.second << endl;
 
-  cout << "Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
-  cout << "Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
+  // cout << "Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
+  // cout << "Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
 
-  cout << "Grau minimo de saída: " << grafo.getGrauMinSaida() << endl;
-  cout << "Grau maximo de saída: " << grafo.getGrauMaxSaida() << endl;
+  // cout << "Grau minimo de saída: " << grafo.getGrauMinSaida() << endl;
+  // cout << "Grau maximo de saída: " << grafo.getGrauMaxSaida() << endl;
 
-  cout << "Componentes conectados: " << grafo.getComponentesConectados() << endl;
+  // cout << "Componentes conectados: " << grafo.getComponentesConectados() << endl;
+
+  vector<double> intermediacao = grafo.calcularIntermediacao();
+  cout << "\nIntermediação dos nós:" << endl;
+  for(int i = 0; i < grafo.getQuantidadeVertices(); i++) {
+    cout << "Nó " << i << ": " << intermediacao[i] << endl;
+  }
 
   return 0;
 }
