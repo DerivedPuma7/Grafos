@@ -8,6 +8,7 @@
 using namespace std;
 
 typedef vector<tuple<int, int, bool>> ListaAdjacencia; // tuple<destino, peso, required>
+typedef pair<int**, int**> WAndPred; // pair<W, pred>
 
 /*
 1. Quantidade de vértices; ✅
@@ -16,10 +17,10 @@ typedef vector<tuple<int, int, bool>> ListaAdjacencia; // tuple<destino, peso, r
 4. Quantidade de vértices requeridos; ✅
 5. Quantidade de arestas requeridas; ✅
 6. Quantidade de arcos requeridos; ✅
-7. Densidade do grafo (order strength);
+7. Densidade do grafo (order strength); ✅
 8. Componentes conectados;
-9. Grau mínimo dos vértices;
-10. Grau máximo dos vértices;
+9. Grau mínimo dos vértices; ✅
+10. Grau máximo dos vértices; ✅
 11. Intermediação - A Intermediação de um nó mede a frequência com que ele aparece nos caminhos mais curtos entre outros nós. Não é necessário calcular outros caminhos mais curtos alternativos;
 12. Caminho médio;
 13. Diâmetro.
@@ -78,6 +79,16 @@ private:
         }
       }
     }
+  }
+
+  double calculaDensidadeGrafoDirecionado() {
+    double densidade = (double)this->quantidadeArestas / (this->quantidadeVertices * (this->quantidadeVertices - 1));
+    return densidade;
+  }
+
+  double calculaDensidadeGrafoNaoDirecionado() {
+    double densidade = (double)this->quantidadeArestas / (this->quantidadeVertices * (this->quantidadeVertices - 1) / 2);
+    return densidade;
   }
 
 public:
@@ -200,9 +211,80 @@ public:
     return this->verticesRequeridos.size();
   }
 
-  pair<int**, int**> getWAndPred() {
+  // pair<W, pred>
+  WAndPred getWAndPred() {
     return {this->matrizW, this->pred};
   }
+
+  double getDensidadeGrafo() {
+    if(this->quantidadeArestas == 0 && this->quantidadeArcos == 0) {
+      return 0;
+    }
+    if(this->quantidadeArcos == 0) {
+      return this->calculaDensidadeGrafoNaoDirecionado();
+    }
+    return this->calculaDensidadeGrafoDirecionado();
+  }
+
+  int getGrauMinSaida() {
+    int grauMin = numeric_limits<int>::max();
+    for(int i = 0; i < this->quantidadeVertices; i++) {
+      int grau = this->listaAdjacencia[i].size();
+      grauMin = min(grauMin, grau);
+    }
+    return grauMin;
+  }
+
+  int getGrauMaxSaida() {
+    int grauMax = 0;
+    for(int i = 0; i < this->quantidadeVertices; i++) {
+      int grau = this->listaAdjacencia[i].size();
+      grauMax = max(grauMax, grau);
+    }
+    return grauMax;
+  }
+
+  int getGrauMinEntrada() {
+    int grauMin = numeric_limits<int>::max();
+    for(int i = 0; i < this->quantidadeVertices; i++) {
+
+      int grauEntradaI = 0;
+      for(int j = 0; j < this->quantidadeVertices; j++) {
+        if(j == i) {
+          continue;
+        }
+        for(auto [destino, peso, required] : listaAdjacencia[j]) {
+          if(destino == i) {
+            grauEntradaI++;
+          }
+        }
+      }
+      grauMin = min(grauMin, grauEntradaI);
+    }
+    return grauMin;
+  }
+
+  int getGrauMaxEntrada() {
+    int grauMax = 0;
+    for(int i = 0; i < this->quantidadeVertices; i++) {
+
+      int grauEntradaI = 0;
+      for(int j = 0; j < this->quantidadeVertices; j++) {
+        if(j == i) {
+          continue;
+        }
+        
+        for(auto [destino, peso, required] : listaAdjacencia[j]) {
+          if(destino == i) {
+            grauEntradaI++;
+          }
+        }
+      }
+      grauMax = max(grauMax, grauEntradaI);
+    }
+    return grauMax;
+  }
+
 };
 
 int main() {
@@ -227,10 +309,17 @@ int main() {
   grafo.imprimirGrafo();
   grafo.floydWarshall();
 
-  pair<int**, int**> wAndPred = grafo.getWAndPred();
-  
-  grafo.imprimirMatrizW(wAndPred.first);
-  grafo.imprimirPred(wAndPred.second);
+  // Grau grau = grafo.getGrau();
+  // cout << "Grau mínimo: " << grau.first << endl;
+  // cout << "Grau máximo: " << grau.second << endl;
+
+  cout << "Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
+  cout << "Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
+
+  cout << "Grau minimo de saída: " << grafo.getGrauMinSaida() << endl;
+  cout << "Grau maximo de saída: " << grafo.getGrauMaxSaida() << endl;
+
+
 
   return 0;
 }
