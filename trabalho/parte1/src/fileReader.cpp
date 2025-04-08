@@ -82,18 +82,18 @@ public:
     string line;
 
     while (getline(file, line)) {
-      if (line.empty() || line[0] == '#') continue;
+      if(line.empty() || line[0] == '#') continue;
 
       // Processar cabeçalho
-      if (line.find("Name:") != string::npos) {
+      if(line.find("Name:") != string::npos) {
         name = line.substr(line.find("BHW"));
       }
-      else if (line.find("Optimal value:") != string::npos) {
+      else if(line.find("Optimal value:") != string::npos) {
         optimalValue = stoi(line.substr(line.find_last_of(" \t") + 1));
       }
 
       // ReN => Required Nodes => Vértices Requeridos
-      else if (line.find("ReN.") != string::npos) {
+      else if(line.find("ReN.") != string::npos) {
         while (getline(file, line) && !line.empty()) {
           stringstream ss(line);
           RequiredNode node;
@@ -105,7 +105,7 @@ public:
       }
 
       // ReE => Required Edges => Arestas Requeridas
-      else if (line.find("ReE.") != string::npos) {
+      else if(line.find("ReE.") != string::npos) {
         while (getline(file, line) && !line.empty()) {
           stringstream ss(line);
           RequiredEdge edge;
@@ -115,7 +115,7 @@ public:
       }
 
       // ReA => Required Arcs => Arcos Requeridos
-      else if (line.find("ReA.") != string::npos) {
+      else if(line.find("ReA.") != string::npos) {
         while (getline(file, line) && !line.empty()) {
           stringstream ss(line);
           RequiredArc arc;
@@ -125,7 +125,7 @@ public:
       }
 
       // EDGE => Arestas Regulares
-      else if (line == "EDGE    FROM N.    TO N.    T. COST") {
+      else if(line == "EDGE    FROM N.    TO N.    T. COST") {
         while (getline(file, line) && !line.empty() && line.find("ReA.") == string::npos) {
           stringstream ss(line);
           RegularEdge edge;
@@ -135,7 +135,7 @@ public:
       }
 
       // Arc => Arcos Regulares
-      else if (normalizeString(line) == "ARC FROM N. TO N. T. COST") {
+      else if(normalizeString(line) == "ARC FROM N. TO N. T. COST") {
         while (getline(file, line) && !line.empty()) {
           stringstream ss(line);
           RegularArc arc;
@@ -148,40 +148,67 @@ public:
   }
 };
 
+inline string getCurrentDateTime(string s){
+  time_t now = time(0);
+  struct tm tstruct;
+  char  buf[80];
+  tstruct = *localtime(&now);
+  if(s=="now")
+      strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+  else if(s=="date")
+      strftime(buf, sizeof(buf), "%Y-%m-%d", &tstruct);
+  return string(buf);
+};
+
+inline void logger(string logMsg){
+  string filePath = "../logs/log_"+getCurrentDateTime("date")+".txt";
+  
+  ofstream ofs(filePath.c_str(), std::ios_base::out | std::ios_base::app );
+  ofs << logMsg << '\n';
+  ofs.close();
+}
+
 int main() {
   GraphData graphData;
+  string now = getCurrentDateTime("now");
+  logger("\n\n" + now + " Iniciando leitura do arquivo BHW1.dat");
+
   graphData.loadFromFile("../exemplos/BHW1.dat");
 
   vector<RequiredNode> requiredNodesList = graphData.requiredNodesList;
-  cout << "Lista de nós requeridos:" << endl;
+  logger("\tLista de nós requeridos:");
   for (const auto& node : requiredNodesList) {
-    cout << "Nó: " << node.id << ", Demanda: " << node.demand << ", Custo de Serviço: " << node.serviceCost << endl;
+    logger("\t\tNó: " + to_string(node.id) + ", Demanda: " + to_string(node.demand) + ", Custo de Serviço: " + to_string(node.serviceCost));
   }
 
   vector<RequiredEdge> requiredEdgesList = graphData.requiredEdgesList;
-  cout << "Lista de arestas requeridas:" << endl;
+  logger("\tLista de arestas requeridas:");
   for (const auto& edge : requiredEdgesList) {
-    cout << "Aresta: " << edge.id << ", De: " << edge.from << ", Para: " << edge.to << ", Custo de Travessia: " << edge.traversalCost
-      << ", Demanda: " << edge.demand << ", Custo de Serviço: " << edge.serviceCost << endl;
+    logger("\t\tAresta: " + edge.id + ", De: " + to_string(edge.from) + ", Para: " + to_string(edge.to) +
+      ", Custo de Travessia: " + to_string(edge.traversalCost) + ", Demanda: " + to_string(edge.demand) +
+      ", Custo de Serviço: " + to_string(edge.serviceCost));
   }
 
   vector<RequiredArc> requiredArcsList = graphData.requiredArcsList;
-  cout << "Lista de arcos requeridos:" << endl;
+  logger("\tLista de arcos requeridos:");
   for (const auto& arc : requiredArcsList) {
-    cout << "Arco: " << arc.id << ", De: " << arc.from << ", Para: " << arc.to << ", Custo de Travessia: " << arc.traversalCost
-      << ", Demanda: " << arc.demand << ", Custo de Serviço: " << arc.serviceCost << endl;
+    logger("\t\tArco: " + arc.id + ", De: " + to_string(arc.from) + ", Para: " + to_string(arc.to) +
+      ", Custo de Travessia: " + to_string(arc.traversalCost) + ", Demanda: " + to_string(arc.demand) +
+      ", Custo de Serviço: " + to_string(arc.serviceCost));
   }
 
   vector<RegularEdge> regularEdgesList = graphData.regularEdgesList;
-  cout << "Lista de arestas regulares:" << endl;
+  logger("\tLista de arestas regulares:");
   for (const auto& edge : regularEdgesList) {
-    cout << "Aresta: De " << edge.from << ", Para: " << edge.to << ", Custo de Travessia: " << edge.traversalCost << endl;
+    logger("\t\tAresta: De " + to_string(edge.from) + ", Para: " + to_string(edge.to) +
+      ", Custo de Travessia: " + to_string(edge.traversalCost));
   }
 
   vector<RegularArc> regularArcsList = graphData.regularArcsList;
-  cout << "Lista de arcos regulares:" << endl;
+  logger("\tLista de arcos regulares:");
   for (const auto& arc : regularArcsList) {
-    cout << "Arco: " << arc.id << ", De: " << arc.from << ", Para: " << arc.to << ", Custo de Travessia: " << arc.traversalCost << endl;
+    logger("\t\tArco: " + arc.id + ", De: " + to_string(arc.from) + ", Para: " + to_string(arc.to) +
+      ", Custo de Travessia: " + to_string(arc.traversalCost));
   }
 
   return 0;
