@@ -44,6 +44,19 @@ struct RegularArc {
   int traversalCost;
 };
 
+string normalizeString(string str) {
+  // Remove múltiplos espaços/tabs
+  str.erase(unique(str.begin(), str.end(), 
+            [](char a, char b) { return isspace(a) && isspace(b); }), 
+            str.end());
+  // Converte tabs para espaços
+  replace(str.begin(), str.end(), '\t', ' ');
+  // Trim espaços no início/fim
+  str.erase(0, str.find_first_not_of(' '));
+  str.erase(str.find_last_not_of(' ') + 1);
+  return str;
+}
+
 class GraphData {
 public:
   string name;
@@ -69,7 +82,6 @@ public:
     string line;
 
     while (getline(file, line)) {
-      cout << line << endl;
       if (line.empty() || line[0] == '#') continue;
 
       // Processar cabeçalho
@@ -79,7 +91,6 @@ public:
       else if (line.find("Optimal value:") != string::npos) {
         optimalValue = stoi(line.substr(line.find_last_of(" \t") + 1));
       }
-      // ... processar outros campos do cabeçalho similarmente
 
       // ReN => Required Nodes => Vértices Requeridos
       else if (line.find("ReN.") != string::npos) {
@@ -124,7 +135,7 @@ public:
       }
 
       // Arc => Arcos Regulares
-      else if (line == "ARC    FROM N.    TO N.    T. COST") {
+      else if (normalizeString(line) == "ARC FROM N. TO N. T. COST") {
         while (getline(file, line) && !line.empty()) {
           stringstream ss(line);
           RegularArc arc;
