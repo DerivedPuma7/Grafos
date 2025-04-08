@@ -168,13 +168,7 @@ inline void logger(string logMsg){
   ofs.close();
 }
 
-int main() {
-  GraphData graphData;
-  string now = getCurrentDateTime("now");
-  logger("\n\n" + now + " Iniciando leitura do arquivo BHW1.dat");
-
-  graphData.loadFromFile("../exemplos/BHW1.dat");
-
+inline void logDataFromInputFiles(GraphData graphData) {
   vector<RequiredNode> requiredNodesList = graphData.requiredNodesList;
   logger("\tLista de nós requeridos:");
   for (const auto& node : requiredNodesList) {
@@ -210,6 +204,18 @@ int main() {
     logger("\t\tArco: " + arc.id + ", De: " + to_string(arc.from) + ", Para: " + to_string(arc.to) +
       ", Custo de Travessia: " + to_string(arc.traversalCost));
   }
+}
+
+int main() {
+  GraphData graphData;
+  string now = getCurrentDateTime("now");
+  string inputFilesDir = "../exemplos/";
+  string fileName = "BHW1.dat";
+
+  logger("\n\n" + now + " Iniciando leitura do arquivo " + fileName);
+  graphData.loadFromFile(inputFilesDir + fileName);
+  logDataFromInputFiles(graphData);
+
 
   return 0;
 }
