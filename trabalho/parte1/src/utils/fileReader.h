@@ -70,11 +70,23 @@ public:
     string line;
 
     while (getline(file, line)) {
+      line = normalizeString(line);
       if(line.empty() || line[0] == '#') continue;
 
       // Processar cabeçalho
       if(line.find("Name:") != string::npos) {
-        name = line.substr(line.find("BHW"));
+        // Extrai tudo após "Name:" e remove espaços extras
+        size_t pos = line.find("Name:") + 5; // +5 para passar "Name:"
+        name = line.substr(pos);
+        
+        // Remove espaços iniciais e finais
+        name.erase(0, name.find_first_not_of(" \t"));
+        name.erase(name.find_last_not_of(" \t") + 1);
+        
+        // Se ainda estiver vazio, usa nome padrão
+        if(name.empty()) name = "unnamed_graph";
+        
+        continue;
       }
       else if(line.find("Optimal value:") != string::npos) {
         optimalValue = stoi(line.substr(line.find_last_of(" \t") + 1));
