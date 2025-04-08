@@ -338,7 +338,6 @@ public:
   /**
    * intermediação representa os pontos principais na malha de caminhos
    * nós com alta intermediação são cruciais
-   * Implementado com IA ⚠️
    */
   vector<double> getIntermediacao() {
     vector<double> intermediacao(this->quantidadeVertices, 0.0);
@@ -379,7 +378,6 @@ public:
 
   /**
    * representa a média das distâncias dos caminhos mais curtos entre todos os pares de nós conectados no grafo
-   * Implementado com IA ⚠️
    */
   double getCaminhoMedio() {
     double soma = 0.0;
@@ -400,7 +398,6 @@ public:
   /**
    * representa o maior caminho mais curto entre qualquer par de nós no grafo
    * grafos com diâmetro grande podem precisar de múltiplos depósitos
-   * Implementado com IA ⚠️
    */
   int calcularDiametro() {
     int diametro = 0;
