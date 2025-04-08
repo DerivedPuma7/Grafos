@@ -151,6 +151,37 @@ public:
     }
     file.close();
   }
+
+  int calcularNumeroDeVertices() {
+    set<int> vertices;
+    for (const auto& node : this->requiredNodesList) {
+      vertices.insert(node.id);
+    }
+    for (const auto& edge : this->requiredEdgesList) {
+      vertices.insert(edge.from);
+      vertices.insert(edge.to);
+    }
+    for (const auto& arc : this->requiredArcsList) {
+      vertices.insert(arc.from);
+      vertices.insert(arc.to);
+    }
+    for (const auto& edge : this->regularEdgesList) {
+      vertices.insert(edge.from);
+      vertices.insert(edge.to);
+    }
+    for (const auto& arc : this->regularArcsList) {
+      vertices.insert(arc.from);
+      vertices.insert(arc.to);
+    }
+    int totalVertices = vertices.size();
+  
+    cout << "Vertices:" << endl;
+    for (const auto& vertex : vertices) {
+      cout << vertex << " ";
+    }
+  
+    return totalVertices;
+  }
 };
 
 inline string getCurrentDateTime(string s){
@@ -211,37 +242,6 @@ inline void logDataFromInputFiles(GraphData graphData) {
   }
 }
 
-int calcularNumeroDeVertices(GraphData graphData) {
-  set<int> vertices;
-  for (const auto& node : graphData.requiredNodesList) {
-    vertices.insert(node.id);
-  }
-  for (const auto& edge : graphData.requiredEdgesList) {
-    vertices.insert(edge.from);
-    vertices.insert(edge.to);
-  }
-  for (const auto& arc : graphData.requiredArcsList) {
-    vertices.insert(arc.from);
-    vertices.insert(arc.to);
-  }
-  for (const auto& edge : graphData.regularEdgesList) {
-    vertices.insert(edge.from);
-    vertices.insert(edge.to);
-  }
-  for (const auto& arc : graphData.regularArcsList) {
-    vertices.insert(arc.from);
-    vertices.insert(arc.to);
-  }
-  int totalVertices = vertices.size();
-
-  cout << "Vertices:" << endl;
-  for (const auto& vertex : vertices) {
-    cout << vertex << " ";
-  }
-
-  return totalVertices;
-}
-
 int main() {
   GraphData graphData;
   string now = getCurrentDateTime("now");
@@ -250,13 +250,14 @@ int main() {
 
   logger("\n\n" + now + " Iniciando leitura do arquivo " + fileName);
   graphData.loadFromFile(inputFilesDir + fileName);
+  int numeroVertices = graphData.calcularNumeroDeVertices();
   logger(now + " Arquivo lido");
   logger("Nome do grafo: " + graphData.name);
-  logger("Quantidade de vértices: " + to_string(calcularNumeroDeVertices(graphData)));
+  logger("Quantidade de vértices: " + to_string(numeroVertices));
   
   logDataFromInputFiles(graphData);
 
-  Grafo grafo(5);
+  Grafo grafo(numeroVertices);
 
   return 0;
 }
