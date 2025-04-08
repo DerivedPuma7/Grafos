@@ -26,6 +26,22 @@ typedef pair<int**, int**> WAndPred; // pair<W, pred>
 13. Diâmetro. ✅
 */
 
+class Vertice {
+public: 
+  int id;
+  int demanda;
+  int custo;
+  Vertice(int id, int demanda, int custo) {
+    this->id = id;
+    this->demanda = demanda;
+    this->custo = custo;
+  }
+
+  bool operator<(const Vertice& other) const {
+    return this->id < other.id;
+  }
+};
+
 class Grafo  {
 private:
   int quantidadeVertices;
@@ -34,7 +50,7 @@ private:
   int quantidadeArcos;
   int quantidadeArcosRequeridos;
   ListaAdjacencia* listaAdjacencia;
-  set<int> verticesRequeridos;
+  set<Vertice> verticesRequeridos;
   int** matrizW;
   int** pred;
 
@@ -98,7 +114,7 @@ public:
     this->quantidadeArestasRequeridas = 0;
     this->quantidadeArcos = 0;
     this->quantidadeArcosRequeridos = 0;
-    this->verticesRequeridos = set<int>();
+    this->verticesRequeridos = set<Vertice>();
     this->listaAdjacencia = new ListaAdjacencia[quantidadeVertices];
     this->inicializaMatrizW();
     this->inicializaPred();
@@ -121,8 +137,9 @@ public:
     this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, required});
   }
 
-  void adicionarVerticeRequerido(int vertice) {
-    this->verticesRequeridos.insert(vertice);
+  void adicionarVerticeRequerido(int vertice, int demanda, int custo) {
+    Vertice verticeRequerido(vertice, demanda, custo);
+    this->verticesRequeridos.insert(verticeRequerido);
   }
 
   void floydWarshall() {
@@ -416,36 +433,42 @@ int main() {
 
   grafo.adicionarArco(4, 3, 6, 0, false);
 
-  grafo.adicionarVerticeRequerido(0);
+  cout << "Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
+
+  grafo.adicionarVerticeRequerido(0, 1, 2);
+  cout << "4- Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
+
+  grafo.adicionarVerticeRequerido(0, 1, 2);
+  cout << "4- Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
 
   grafo.imprimirGrafo();
-  grafo.floydWarshall();
+  // grafo.floydWarshall();
   
-  WAndPred wAndPred = grafo.getWAndPred();
-  grafo.imprimirMatrizW(wAndPred.first);
-  grafo.imprimirPred(wAndPred.second);
+  // WAndPred wAndPred = grafo.getWAndPred();
+  // grafo.imprimirMatrizW(wAndPred.first);
+  // grafo.imprimirPred(wAndPred.second);
 
-  cout << "1- Quantidade de vértices: " << grafo.getQuantidadeVertices() << endl;
-  cout << "2- Quantidade de arestas: " << grafo.getQuantidadeArestas() << endl;
-  cout << "3- Quantidade de arcos: " << grafo.getQuantidadeArcos() << endl;
-  cout << "4- Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
-  cout << "5- Quantidade de arestas requeridas: " << grafo.getQuantidadeArestasRequeridas() << endl;
-  cout << "6- Quantidade de arcos requeridos: " << grafo.getQuantidadeArcosRequeridos() << endl;
-  cout << "7- Densidade do grafo: " << grafo.getDensidadeGrafo() << endl;
-  cout << "8- Componentes conectados: " << grafo.getComponentesConectados() << endl;
-  cout << "9- Grau: " << endl;
-  cout << "\t9.1- Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
-  cout << "\t9.2- Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
-  cout << "\t9.3- Grau mínimo de saída: " << grafo.getGrauMinSaida() << endl;
-  cout << "\t9.4- Grau máximo de saída: " << grafo.getGrauMaxSaida() << endl;
-  cout << "10- Intermediação: " << endl;
-  vector<double> intermediacao = grafo.getIntermediacao();
-  cout << "\tIntermediação dos nós:" << endl;
-  for(int i = 0; i < grafo.getQuantidadeVertices(); i++) {
-    cout << "\tNó " << i << ": " << intermediacao[i] << endl;
-  }
-  cout << "11- Caminho médio: " << grafo.getCaminhoMedio() << endl;
-  cout << "12- Diâmetro: " << grafo.calcularDiametro() << endl;
+  // cout << "1- Quantidade de vértices: " << grafo.getQuantidadeVertices() << endl;
+  // cout << "2- Quantidade de arestas: " << grafo.getQuantidadeArestas() << endl;
+  // cout << "3- Quantidade de arcos: " << grafo.getQuantidadeArcos() << endl;
+  // cout << "4- Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
+  // cout << "5- Quantidade de arestas requeridas: " << grafo.getQuantidadeArestasRequeridas() << endl;
+  // cout << "6- Quantidade de arcos requeridos: " << grafo.getQuantidadeArcosRequeridos() << endl;
+  // cout << "7- Densidade do grafo: " << grafo.getDensidadeGrafo() << endl;
+  // cout << "8- Componentes conectados: " << grafo.getComponentesConectados() << endl;
+  // cout << "9- Grau: " << endl;
+  // cout << "\t9.1- Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
+  // cout << "\t9.2- Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
+  // cout << "\t9.3- Grau mínimo de saída: " << grafo.getGrauMinSaida() << endl;
+  // cout << "\t9.4- Grau máximo de saída: " << grafo.getGrauMaxSaida() << endl;
+  // cout << "10- Intermediação: " << endl;
+  // vector<double> intermediacao = grafo.getIntermediacao();
+  // cout << "\tIntermediação dos nós:" << endl;
+  // for(int i = 0; i < grafo.getQuantidadeVertices(); i++) {
+  //   cout << "\tNó " << i << ": " << intermediacao[i] << endl;
+  // }
+  // cout << "11- Caminho médio: " << grafo.getCaminhoMedio() << endl;
+  // cout << "12- Diâmetro: " << grafo.calcularDiametro() << endl;
 
   return 0;
 }
