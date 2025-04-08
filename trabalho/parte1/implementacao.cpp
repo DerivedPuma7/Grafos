@@ -7,7 +7,7 @@
 
 using namespace std;
 
-typedef vector<tuple<int, int, bool>> ListaAdjacencia; // tuple<destino, peso, required>
+typedef vector<tuple<int, int, int, bool>> ListaAdjacencia; // tuple<destino, peso, demanda, required>
 typedef pair<int**, int**> WAndPred; // pair<W, pred>
 
 /*
@@ -63,7 +63,7 @@ private:
       }
     }
     for(int i = 0; i < this->quantidadeVertices; i++) {
-      for(auto [destino, peso, required] : listaAdjacencia[i]) {
+      for(auto [destino, peso, demanda, required] : listaAdjacencia[i]) {
         this->matrizW[i][destino] = peso;
       }
     }
@@ -104,21 +104,21 @@ public:
     this->inicializaPred();
   }
 
-  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, bool required) {
+  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, int demanda, bool required) {
     this->quantidadeArestas++;
     if(required) {
       this->quantidadeArestasRequeridas++;
     }
-    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, required});
-    this->listaAdjacencia[verticeDestino].push_back({verticeOrigem, peso, required});
+    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, required});
+    this->listaAdjacencia[verticeDestino].push_back({verticeOrigem, peso, demanda, required});
   }
 
-  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, bool required) {
+  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, int demanda, bool required) {
     this->quantidadeArcos++;
     if(required) {
       this->quantidadeArcosRequeridos++;
     }
-    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, required});
+    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, required});
   }
 
   void adicionarVerticeRequerido(int vertice) {
@@ -148,7 +148,7 @@ public:
   void imprimirGrafo() {
     for (int i = 0; i < this->quantidadeVertices; i++) {
       cout << i << " → ";
-      for (auto [destino, peso, required] : listaAdjacencia[i]) {
+      for (auto [destino, peso, demanda, required] : listaAdjacencia[i]) {
         string tipo = required ? "Required" : "Not Required";
         cout << "{" << destino << ", " << peso << ", " << tipo  << "} ";
       }
@@ -253,7 +253,7 @@ public:
         if(j == i) {
           continue;
         }
-        for(auto [destino, peso, required] : listaAdjacencia[j]) {
+        for(auto [destino, peso, demanda, required] : listaAdjacencia[j]) {
           if(destino == i) {
             grauEntradaI++;
           }
@@ -274,7 +274,7 @@ public:
           continue;
         }
         
-        for(auto [destino, peso, required] : listaAdjacencia[j]) {
+        for(auto [destino, peso, demanda, required] : listaAdjacencia[j]) {
           if(destino == i) {
             grauEntradaI++;
           }
@@ -305,7 +305,7 @@ public:
           int atual = fila.front();
           fila.pop();
 
-          for(auto [vizinho, peso, required] : this->listaAdjacencia[atual]) {
+          for(auto [vizinho, peso, demanda, required] : this->listaAdjacencia[atual]) {
             if (!visitado[vizinho]) {
               visitado[vizinho] = true;
               fila.push(vizinho);
@@ -402,19 +402,19 @@ public:
 int main() {
   Grafo grafo(5);
 
-  grafo.adicionarArco(0, 1, 3, true);
-  grafo.adicionarArco(0, 2, 8, true);
-  grafo.adicionarArco(0, 4, -4, true);
+  grafo.adicionarArco(0, 1, 3, 0, true);
+  grafo.adicionarArco(0, 2, 8, 0, true);
+  grafo.adicionarArco(0, 4, -4, 0, true);
 
-  grafo.adicionarArco(1, 4, 7, false);
-  grafo.adicionarArco(1, 3, 1, true);
+  grafo.adicionarArco(1, 4, 7, 0, false);
+  grafo.adicionarArco(1, 3, 1, 0, true);
 
-  grafo.adicionarArco(2, 1, 4, false);
+  grafo.adicionarArco(2, 1, 4, 0, false);
 
-  grafo.adicionarArco(3, 2, -5, false);
-  grafo.adicionarArco(3, 0, 2, false);
+  grafo.adicionarArco(3, 2, -5, 0, false);
+  grafo.adicionarArco(3, 0, 2, 0, false);
 
-  grafo.adicionarArco(4, 3, 6, false);
+  grafo.adicionarArco(4, 3, 6, 0, false);
 
   grafo.adicionarVerticeRequerido(0);
 
