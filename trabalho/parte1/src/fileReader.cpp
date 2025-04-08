@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include "entities/grafo.h"
 
 using namespace std;
 
@@ -82,14 +83,15 @@ public:
     string line;
 
     while (getline(file, line)) {
+      cout << line << endl;
       if(line.empty() || line[0] == '#') continue;
 
       // Processar cabeçalho
       if(line.find("Name:") != string::npos) {
-        name = line.substr(line.find("BHW"));
+        this->name = line.substr(line.find("BHW"));
       }
       else if(line.find("Optimal value:") != string::npos) {
-        optimalValue = stoi(line.substr(line.find_last_of(" \t") + 1));
+        this->optimalValue = stoi(line.substr(line.find_last_of(" \t") + 1));
       }
 
       // ReN => Required Nodes => Vértices Requeridos
@@ -100,7 +102,7 @@ public:
           string nodeId;
           ss >> nodeId >> node.demand >> node.serviceCost;
           node.id = stoi(nodeId.substr(1)); // Remove 'N' do ID
-          requiredNodesList.push_back(node);
+          this->requiredNodesList.push_back(node);
         }
       }
 
@@ -110,7 +112,7 @@ public:
           stringstream ss(line);
           RequiredEdge edge;
           ss >> edge.id >> edge.from >> edge.to >> edge.traversalCost >> edge.demand >> edge.serviceCost;
-          requiredEdgesList.push_back(edge);
+          this->requiredEdgesList.push_back(edge);
         }
       }
 
@@ -120,7 +122,7 @@ public:
           stringstream ss(line);
           RequiredArc arc;
           ss >> arc.id >> arc.from >> arc.to >> arc.traversalCost >> arc.demand >> arc.serviceCost;
-          requiredArcsList.push_back(arc);
+          this->requiredArcsList.push_back(arc);
         }
       }
 
@@ -130,17 +132,20 @@ public:
           stringstream ss(line);
           RegularEdge edge;
           ss >> edge.from >> edge.to >> edge.traversalCost;
-          regularEdgesList.push_back(edge);
+          this->regularEdgesList.push_back(edge);
         }
       }
 
       // Arc => Arcos Regulares
       else if(normalizeString(line) == "ARC FROM N. TO N. T. COST") {
         while (getline(file, line) && !line.empty()) {
+          if(normalizeString(line) == "the data is based on the CARP instance gdb1.") {
+            continue;
+          }
           stringstream ss(line);
           RegularArc arc;
           ss >> arc.id >> arc.from >> arc.to >> arc.traversalCost;
-          regularArcsList.push_back(arc);
+          this->regularArcsList.push_back(arc);
         }
       }
     }
@@ -206,6 +211,37 @@ inline void logDataFromInputFiles(GraphData graphData) {
   }
 }
 
+int calcularNumeroDeVertices(GraphData graphData) {
+  set<int> vertices;
+  for (const auto& node : graphData.requiredNodesList) {
+    vertices.insert(node.id);
+  }
+  for (const auto& edge : graphData.requiredEdgesList) {
+    vertices.insert(edge.from);
+    vertices.insert(edge.to);
+  }
+  for (const auto& arc : graphData.requiredArcsList) {
+    vertices.insert(arc.from);
+    vertices.insert(arc.to);
+  }
+  for (const auto& edge : graphData.regularEdgesList) {
+    vertices.insert(edge.from);
+    vertices.insert(edge.to);
+  }
+  for (const auto& arc : graphData.regularArcsList) {
+    vertices.insert(arc.from);
+    vertices.insert(arc.to);
+  }
+  int totalVertices = vertices.size();
+
+  cout << "Vertices:" << endl;
+  for (const auto& vertex : vertices) {
+    cout << vertex << " ";
+  }
+
+  return totalVertices;
+}
+
 int main() {
   GraphData graphData;
   string now = getCurrentDateTime("now");
@@ -214,8 +250,13 @@ int main() {
 
   logger("\n\n" + now + " Iniciando leitura do arquivo " + fileName);
   graphData.loadFromFile(inputFilesDir + fileName);
+  logger(now + " Arquivo lido");
+  logger("Nome do grafo: " + graphData.name);
+  logger("Quantidade de vértices: " + to_string(calcularNumeroDeVertices(graphData)));
+  
   logDataFromInputFiles(graphData);
 
+  Grafo grafo(5);
 
   return 0;
 }
