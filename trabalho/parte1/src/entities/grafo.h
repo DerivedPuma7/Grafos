@@ -87,7 +87,7 @@ public:
     this->quantidadeArcos = 0;
     this->quantidadeArcosRequeridos = 0;
     this->verticesRequeridos = set<Vertice>();
-    this->listaAdjacencia = new ListaAdjacencia[quantidadeVertices];
+    this->listaAdjacencia = new ListaAdjacencia[quantidadeVertices+1];
     this->inicializaMatrizW();
     this->inicializaPred();
   }
@@ -115,9 +115,6 @@ public:
   }
 
   void floydWarshall() {
-    this->imprimirMatrizW(this->matrizW);
-    this->imprimirPred(this->pred);
-
     this->preencheMatrizW();
     this->preenchePred();
 
