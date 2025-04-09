@@ -98,15 +98,38 @@ int main() {
     return 1;
   }
 
-  for (const string& fileName : datFiles) {
-    GraphData graphData = readInputFile(inputFilesDir, fileName);
-    Grafo graph = registerGraph(graphData);
-    // pair<int**, int**> wAndPred= graph.getWAndPred();
-    // int** w = wAndPred.first;
-    // graph.imprimirMatrizW(w);
-    // graph.floydWarshall();
-    cout << "-----" << endl << endl;
+  GraphData graphData = readInputFile(inputFilesDir, "BHW1.dat");
+  Grafo grafo = registerGraph(graphData);
+  grafo.floydWarshall();
+
+  cout << "1- Quantidade de vértices: " << grafo.getQuantidadeVertices() << endl;
+  cout << "2- Quantidade de arestas: " << grafo.getQuantidadeArestas() << endl;
+  cout << "3- Quantidade de arcos: " << grafo.getQuantidadeArcos() << endl;
+  cout << "4- Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
+  cout << "5- Quantidade de arestas requeridas: " << grafo.getQuantidadeArestasRequeridas() << endl;
+  cout << "6- Quantidade de arcos requeridos: " << grafo.getQuantidadeArcosRequeridos() << endl;
+  cout << "7- Densidade do grafo: " << grafo.getDensidadeGrafo() << endl;
+  cout << "8- Componentes conectados: " << grafo.getComponentesConectados() << endl;
+  cout << "9- Grau: " << endl;
+  cout << "\t9.1- Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
+  cout << "\t9.2- Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
+  cout << "\t9.3- Grau mínimo de saída: " << grafo.getGrauMinSaida() << endl;
+  cout << "\t9.4- Grau máximo de saída: " << grafo.getGrauMaxSaida() << endl;
+  cout << "10- Intermediação: " << endl;
+  vector<double> intermediacao = grafo.getIntermediacao();
+  cout << "\tIntermediação dos nós:" << endl;
+  for(int i = 0; i < grafo.getQuantidadeVertices(); i++) {
+    cout << "\tNó " << i << ": " << intermediacao[i] << endl;
   }
+  cout << "11- Caminho médio: " << grafo.getCaminhoMedio() << endl;
+  cout << "12- Diâmetro: " << grafo.calcularDiametro() << endl;
+
+  // for (const string& fileName : datFiles) {
+  //   GraphData graphData = readInputFile(inputFilesDir, fileName);
+  //   Grafo graph = registerGraph(graphData);
+  //   // graph.floydWarshall();
+  //   cout << "-----" << endl << endl;
+  // }
 
   logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
   return 0;

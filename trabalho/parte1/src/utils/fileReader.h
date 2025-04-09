@@ -137,10 +137,13 @@ public:
       // Arc => Arcos Regulares
       else if(normalizeString(line) == "ARC FROM N. TO N. T. COST") {
         while (getline(file, line) && !line.empty()) {
+          if(normalizeString(line) == "the data is based on the CARP instance gdb1.") {
+            continue;
+          }
           stringstream ss(line);
           RegularArc arc;
           ss >> arc.id >> arc.from >> arc.to >> arc.traversalCost;
-          regularArcsList.push_back(arc);
+          this->regularArcsList.push_back(arc);
         }
       }
     }

@@ -149,6 +149,7 @@ public:
         }
       }
     }
+    this->calcularNumeroDeVertices();
     file.close();
   }
 
@@ -257,7 +258,7 @@ int main() {
   
   logDataFromInputFiles(graphData);
 
-  Grafo grafo(numeroVertices);
+  Grafo grafo(numeroVertices, graphData.name);
 
   return 0;
 }
