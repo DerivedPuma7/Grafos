@@ -4,21 +4,24 @@
 #include <tuple>
 #include <set>
 #include <limits>
+#include "vertice.h"
+
 
 using namespace std;
 
-typedef vector<tuple<int, int, int, bool>> ListaAdjacencia; // tuple<destino, peso, demanda, required>
+typedef vector<tuple<int, int, int, int, bool>> ListaAdjacencia; // tuple<destino, peso, demanda, custoServico, required>
 typedef pair<int**, int**> WAndPred; // pair<W, pred>
 
 class Grafo  {
 private:
+  string nome;
   int quantidadeVertices;
   int quantidadeArestas;
   int quantidadeArestasRequeridas;
   int quantidadeArcos;
   int quantidadeArcosRequeridos;
   ListaAdjacencia* listaAdjacencia;
-  set<int> verticesRequeridos;
+  set<Vertice> verticesRequeridos;
   int** matrizW;
   int** pred;
 
@@ -47,7 +50,7 @@ private:
       }
     }
     for(int i = 0; i < this->quantidadeVertices; i++) {
-      for(auto [destino, peso, demanda, required] : listaAdjacencia[i]) {
+      for(auto [destino, peso, demanda, custoServico, required] : listaAdjacencia[i]) {
         this->matrizW[i][destino] = peso;
       }
     }
@@ -76,40 +79,45 @@ private:
   }
 
 public:
-  Grafo(int quantidadeVertices) {
+  Grafo(int quantidadeVertices, string nome) {
     this->quantidadeVertices = quantidadeVertices;
+    this->nome = nome;
     this->quantidadeArestas = 0;
     this->quantidadeArestasRequeridas = 0;
     this->quantidadeArcos = 0;
     this->quantidadeArcosRequeridos = 0;
-    this->verticesRequeridos = set<int>();
+    this->verticesRequeridos = set<Vertice>();
     this->listaAdjacencia = new ListaAdjacencia[quantidadeVertices];
     this->inicializaMatrizW();
     this->inicializaPred();
   }
 
-  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, int demanda, bool required) {
+  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required) {
     this->quantidadeArestas++;
     if(required) {
       this->quantidadeArestasRequeridas++;
     }
-    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, required});
-    this->listaAdjacencia[verticeDestino].push_back({verticeOrigem, peso, demanda, required});
+    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, custoServico, required});
+    this->listaAdjacencia[verticeDestino].push_back({verticeOrigem, peso, demanda, custoServico, required});
   }
 
-  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, int demanda, bool required) {
+  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required) {
     this->quantidadeArcos++;
     if(required) {
       this->quantidadeArcosRequeridos++;
     }
-    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, required});
+    this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, custoServico, required});
   }
 
-  void adicionarVerticeRequerido(int vertice) {
-    this->verticesRequeridos.insert(vertice);
+  void adicionarVerticeRequerido(int vertice, int demanda, int custo) {
+    Vertice verticeRequerido(vertice, demanda, custo);
+    this->verticesRequeridos.insert(verticeRequerido);
   }
 
   void floydWarshall() {
+    this->imprimirMatrizW(this->matrizW);
+    this->imprimirPred(this->pred);
+
     this->preencheMatrizW();
     this->preenchePred();
 
@@ -132,7 +140,7 @@ public:
   void imprimirGrafo() {
     for (int i = 0; i < this->quantidadeVertices; i++) {
       cout << i << " → ";
-      for (auto [destino, peso, demanda, required] : listaAdjacencia[i]) {
+      for (auto [destino, peso, demanda, custoServico, required] : listaAdjacencia[i]) {
         string tipo = required ? "Required" : "Not Required";
         cout << "{" << destino << ", " << peso << ", " << tipo  << "} ";
       }
@@ -169,6 +177,10 @@ public:
       cout << endl;
     }
     cout << endl;
+  }
+
+  string getNome() {
+    return this->nome;
   }
 
   int getQuantidadeVertices() {
@@ -237,7 +249,7 @@ public:
         if(j == i) {
           continue;
         }
-        for(auto [destino, peso, demanda, required] : listaAdjacencia[j]) {
+        for(auto [destino, peso, demanda, custoServico, required] : listaAdjacencia[j]) {
           if(destino == i) {
             grauEntradaI++;
           }
@@ -258,7 +270,7 @@ public:
           continue;
         }
         
-        for(auto [destino, peso, demanda, required] : listaAdjacencia[j]) {
+        for(auto [destino, peso, demanda, custoServico, required] : listaAdjacencia[j]) {
           if(destino == i) {
             grauEntradaI++;
           }
@@ -289,7 +301,7 @@ public:
           int atual = fila.front();
           fila.pop();
 
-          for(auto [vizinho, peso, demanda, required] : this->listaAdjacencia[atual]) {
+          for(auto [vizinho, peso, demanda, custoServico, required] : this->listaAdjacencia[atual]) {
             if (!visitado[vizinho]) {
               visitado[vizinho] = true;
               fila.push(vizinho);

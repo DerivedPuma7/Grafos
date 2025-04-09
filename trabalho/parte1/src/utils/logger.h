@@ -4,7 +4,7 @@
 
 using namespace std;
 
-inline string getCurrentDateTime(string s){
+string getCurrentDateTime(string s){
   time_t now = time(0);
   struct tm tstruct;
   char  buf[80];
@@ -16,7 +16,7 @@ inline string getCurrentDateTime(string s){
   return string(buf);
 };
 
-inline void logger(string logMsg){
+void logger(string logMsg){
   string filePath = "../logs/log_"+getCurrentDateTime("date")+".txt";
   
   ofstream ofs(filePath.c_str(), std::ios_base::out | std::ios_base::app );
@@ -24,7 +24,7 @@ inline void logger(string logMsg){
   ofs.close();
 }
 
-inline void logDataFromInputFiles(GraphData graphData) {
+void logDataFromInputFiles(GraphData graphData) {
   vector<RequiredNode> requiredNodesList = graphData.requiredNodesList;
   logger("\tLista de nós requeridos:");
   for (const auto& node : requiredNodesList) {

@@ -145,6 +145,31 @@ public:
       }
     }
     file.close();
+    this->calcularNumeroDeVertices();
+  }
+
+  void calcularNumeroDeVertices() {
+    set<int> vertices;
+    for (const auto& node : this->requiredNodesList) {
+      vertices.insert(node.id);
+    }
+    for (const auto& edge : this->requiredEdgesList) {
+      vertices.insert(edge.from);
+      vertices.insert(edge.to);
+    }
+    for (const auto& arc : this->requiredArcsList) {
+      vertices.insert(arc.from);
+      vertices.insert(arc.to);
+    }
+    for (const auto& edge : this->regularEdgesList) {
+      vertices.insert(edge.from);
+      vertices.insert(edge.to);
+    }
+    for (const auto& arc : this->regularArcsList) {
+      vertices.insert(arc.from);
+      vertices.insert(arc.to);
+    }
+    this->totalNodes = vertices.size();
   }
 };
 
