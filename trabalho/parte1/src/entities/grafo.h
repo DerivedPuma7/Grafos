@@ -26,22 +26,22 @@ private:
   int** pred;
 
   void inicializaMatrizW() {
-    this->matrizW = new int*[this->quantidadeVertices];
-    for(int i = 0; i < this->quantidadeVertices; i++) {
-      this->matrizW[i] = new int[this->quantidadeVertices];
+    this->matrizW = new int*[this->quantidadeVertices+1];
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
+      this->matrizW[i] = new int[this->quantidadeVertices+1];
     }
   }
 
   void inicializaPred() {
-    this->pred = new int*[this->quantidadeVertices];
-    for(int i = 0; i < this->quantidadeVertices; i++) {
-      this->pred[i] = new int[this->quantidadeVertices];
+    this->pred = new int*[this->quantidadeVertices+1];
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
+      this->pred[i] = new int[this->quantidadeVertices+1];
     }
   }
 
   void preencheMatrizW() {
-    for(int i = 0; i < this->quantidadeVertices; i++) {
-      for(int j = 0; j < this->quantidadeVertices; j++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
+      for(int j = 1; j <= this->quantidadeVertices; j++) {
         if(i == j) {
           this->matrizW[i][j] = 0;
         } else {
@@ -49,7 +49,7 @@ private:
         }
       }
     }
-    for(int i = 0; i < this->quantidadeVertices; i++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
       for(auto [destino, peso, demanda, custoServico, required] : listaAdjacencia[i]) {
         this->matrizW[i][destino] = peso;
       }
@@ -57,8 +57,8 @@ private:
   }
 
   void preenchePred() {
-    for(int i = 0; i < this->quantidadeVertices; i++) {
-      for(int j = 0; j < this->quantidadeVertices; j++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
+      for(int j = 1; j <= this->quantidadeVertices; j++) {
         if(this->matrizW[i][j] != numeric_limits<int>::max() && this->matrizW[i][j] != 0) {
           this->pred[i][j] = i;
         } else {
@@ -118,9 +118,9 @@ public:
     this->preencheMatrizW();
     this->preenchePred();
 
-    for(int k = 0; k < this->quantidadeVertices; k++) {
-      for(int i = 0; i < this->quantidadeVertices; i++) {
-        for(int j = 0; j < this->quantidadeVertices; j++) {
+    for(int k = 1; k <= this->quantidadeVertices; k++) {
+      for(int i = 1; i <= this->quantidadeVertices; i++) {
+        for(int j = 1; j <= this->quantidadeVertices; j++) {
           if(
             this->matrizW[i][k] != numeric_limits<int>::max() && 
             this->matrizW[k][j] != numeric_limits<int>::max() &&
@@ -135,7 +135,7 @@ public:
   }
 
   void imprimirGrafo() {
-    for (int i = 0; i < this->quantidadeVertices; i++) {
+    for (int i = 1; i <= this->quantidadeVertices; i++) {
       cout << i << " → ";
       for (auto [destino, peso, demanda, custoServico, required] : listaAdjacencia[i]) {
         string tipo = required ? "Required" : "Not Required";
@@ -148,8 +148,8 @@ public:
 
   void imprimirMatrizW(int** matriz) {
     cout << "\nMatriz W:" << endl;
-    for (int i = 0; i < this->quantidadeVertices; i++) {
-      for (int j = 0; j < this->quantidadeVertices; j++) {
+    for (int i = 1; i <= this->quantidadeVertices; i++) {
+      for (int j = 1; j <= this->quantidadeVertices; j++) {
         if (matriz[i][j] == numeric_limits<int>::max()) {
           cout << "INF ";
         } else {
@@ -163,8 +163,8 @@ public:
 
   void imprimirPred(int** matriz) {
     cout << "\nPred:" << endl;
-    for (int i = 0; i < this->quantidadeVertices; i++) {
-      for (int j = 0; j < this->quantidadeVertices; j++) {
+    for (int i = 1; i <= this->quantidadeVertices; i++) {
+      for (int j = 1; j <= this->quantidadeVertices; j++) {
         if (matriz[i][j] == -1) {
           cout << "- ";
         } else {
@@ -221,7 +221,7 @@ public:
 
   int getGrauMinSaida() {
     int grauMin = numeric_limits<int>::max();
-    for(int i = 0; i < this->quantidadeVertices; i++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
       int grau = this->listaAdjacencia[i].size();
       grauMin = min(grauMin, grau);
     }
@@ -230,7 +230,7 @@ public:
 
   int getGrauMaxSaida() {
     int grauMax = 0;
-    for(int i = 0; i < this->quantidadeVertices; i++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
       int grau = this->listaAdjacencia[i].size();
       grauMax = max(grauMax, grau);
     }
@@ -239,10 +239,10 @@ public:
 
   int getGrauMinEntrada() {
     int grauMin = numeric_limits<int>::max();
-    for(int i = 0; i < this->quantidadeVertices; i++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
 
       int grauEntradaI = 0;
-      for(int j = 0; j < this->quantidadeVertices; j++) {
+      for(int j = 1; j <= this->quantidadeVertices; j++) {
         if(j == i) {
           continue;
         }
@@ -259,10 +259,10 @@ public:
 
   int getGrauMaxEntrada() {
     int grauMax = 0;
-    for(int i = 0; i < this->quantidadeVertices; i++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
 
       int grauEntradaI = 0;
-      for(int j = 0; j < this->quantidadeVertices; j++) {
+      for(int j = 1; j <= this->quantidadeVertices; j++) {
         if(j == i) {
           continue;
         }
@@ -287,7 +287,7 @@ public:
     vector<bool> visitado(this->quantidadeVertices, false);
     int componentes = 0;
 
-    for(int i = 0; i < this->quantidadeVertices; i++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
       if(!visitado[i]) {
         componentes++;
         queue<int> fila;
@@ -318,8 +318,8 @@ public:
   vector<double> getIntermediacao() {
     vector<double> intermediacao(this->quantidadeVertices, 0.0);
     
-    for(int s = 0; s < this->quantidadeVertices; s++) {
-      for(int t = 0; t < this->quantidadeVertices; t++) {
+    for(int s = 1; s <= this->quantidadeVertices; s++) {
+      for(int t = 1; t <= this->quantidadeVertices; t++) {
         if(s == t) continue;
         
         // Reconstruir o caminho mais curto de s para t
@@ -344,7 +344,7 @@ public:
     // normalizar (opcional, dependendo da definição)
     int pares = this->quantidadeVertices * (this->quantidadeVertices - 1);
     if(pares > 0) {
-      for(int i = 0; i < this->quantidadeVertices; i++) {
+      for(int i = 1; i <= this->quantidadeVertices; i++) {
         intermediacao[i] /= pares;
       }
     }
@@ -359,8 +359,8 @@ public:
     double soma = 0.0;
     int contagem = 0;
     
-    for(int i = 0; i < this->quantidadeVertices; i++) {
-      for(int j = 0; j < this->quantidadeVertices; j++) {
+    for(int i = 1; i <= this->quantidadeVertices; i++) {
+      for(int j = 1; j <= this->quantidadeVertices; j++) {
         if(i != j && this->matrizW[i][j] != numeric_limits<int>::max()) {
           soma += this->matrizW[i][j];
           contagem++;
@@ -378,8 +378,8 @@ public:
   int calcularDiametro() {
     int diametro = 0;
     
-    for(int i = 0; i < this->quantidadeVertices; i++) {
-      for(int j = 0; j < this->quantidadeVertices; j++) {
+    for(int i = 1; i < this->quantidadeVertices; i++) {
+      for(int j = 1; j < this->quantidadeVertices; j++) {
         if(i != j && this->matrizW[i][j] != numeric_limits<int>::max()) {
           diametro = max(diametro, this->matrizW[i][j]);
         }
