@@ -125,7 +125,7 @@ public:
       }
 
       // EDGE => Arestas Regulares
-      else if(line == "EDGE    FROM N.    TO N.    T. COST") {
+      else if(normalizeString(line) == "EDGE FROM N. TO N. T. COST") {
         while (getline(file, line) && !line.empty() && line.find("ReA.") == string::npos) {
           stringstream ss(line);
           RegularEdge edge;
