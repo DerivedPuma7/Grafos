@@ -278,39 +278,6 @@ public:
     return grauMax;
   }
 
-  /*
-    BFS = busca em largura
-    Um grafo conexo possui apenas 1 componente conectado
-    Um grafo com múltiplos componentes conectados é um grafo desconexo
-  */
-  int getComponentesConectados() {
-    vector<bool> visitado(this->quantidadeVertices, false);
-    int componentes = 0;
-
-    for(int i = 1; i <= this->quantidadeVertices; i++) {
-      if(!visitado[i]) {
-        componentes++;
-        queue<int> fila;
-        fila.push(i);
-        visitado[i] = true;
-
-        while(!fila.empty()) {
-          int atual = fila.front();
-          fila.pop();
-
-          for(auto [vizinho, peso, demanda, custoServico, required] : this->listaAdjacencia[atual]) {
-            if (!visitado[vizinho]) {
-              visitado[vizinho] = true;
-              fila.push(vizinho);
-            }
-          }
-        }
-      }
-    }
-
-    return componentes;
-  }
-
   /**
    * intermediação representa os pontos principais na malha de caminhos
    * nós com alta intermediação são cruciais

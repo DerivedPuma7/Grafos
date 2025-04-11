@@ -18,7 +18,6 @@ typedef pair<int**, int**> WAndPred; // pair<W, pred>
 5. Quantidade de arestas requeridas; ✅
 6. Quantidade de arcos requeridos; ✅
 7. Densidade do grafo (order strength); ✅
-8. Componentes conectados; ✅
 9. Grau mínimo dos vértices; ✅
 10. Grau máximo dos vértices; ✅
 11. Intermediação - A Intermediação de um nó mede a frequência com que ele aparece nos caminhos mais curtos entre outros nós. Não é necessário calcular outros caminhos mais curtos alternativos; ✅
@@ -300,39 +299,6 @@ public:
       grauMax = max(grauMax, grauEntradaI);
     }
     return grauMax;
-  }
-
-  /*
-    BFS = busca em largura
-    Um grafo conexo possui apenas 1 componente conectado
-    Um grafo com múltiplos componentes conectados é um grafo desconexo
-  */
-  int getComponentesConectados() {
-    vector<bool> visitado(this->quantidadeVertices, false);
-    int componentes = 0;
-
-    for(int i = 0; i < this->quantidadeVertices; i++) {
-      if(!visitado[i]) {
-        componentes++;
-        queue<int> fila;
-        fila.push(i);
-        visitado[i] = true;
-
-        while(!fila.empty()) {
-          int atual = fila.front();
-          fila.pop();
-
-          for(auto [vizinho, peso, demanda, custoServico, required] : this->listaAdjacencia[atual]) {
-            if (!visitado[vizinho]) {
-              visitado[vizinho] = true;
-              fila.push(vizinho);
-            }
-          }
-        }
-      }
-    }
-
-    return componentes;
   }
 
   /**
