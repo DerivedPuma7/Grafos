@@ -283,7 +283,7 @@ public:
    * nós com alta intermediação são cruciais
    */
   vector<double> getIntermediacao() {
-    vector<double> intermediacao(this->quantidadeVertices, 0.0);
+    vector<double> intermediacao(this->quantidadeVertices+1, 0.0);
     
     for(int s = 1; s <= this->quantidadeVertices; s++) {
       for(int t = 1; t <= this->quantidadeVertices; t++) {

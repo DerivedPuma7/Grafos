@@ -13,11 +13,11 @@ GraphData readInputFile(string inputFilesDir, string fileName) {
   logger("\n" + getCurrentDateTime("now") + " Processando arquivo: " + fileName);
   graphData.loadFromFile(inputFilesDir + fileName);
   logDataFromInputFiles(graphData);
-  logger(getCurrentDateTime("now") + " Arquivo " + fileName + " processado com sucesso");
+  logger(getCurrentDateTime("now") + " Arquivo " + fileName + " processado com sucesso\n\n");
   return graphData;
 }
 
-vector<string> getInputFiles(string inputFilesDir) {
+vector<string> readInputDirectory(string inputFilesDir) {
   vector<string> datFiles;
   try {
     for (const auto& entry : fs::directory_iterator(inputFilesDir)) {
@@ -34,104 +34,103 @@ vector<string> getInputFiles(string inputFilesDir) {
 
 Grafo registerGraph(GraphData graphData) {
   Grafo graph(graphData.totalNodes, graphData.name);
-  cout << "fazendo progresso..." << " grafo: " << graphData.name  << "- vertices: " << graphData.totalNodes << endl;
   for (const auto& node : graphData.requiredNodesList) {
     graph.adicionarVerticeRequerido(node.id, node.demand, node.serviceCost);
   }
-  cout << "vertices requeridos ok" << endl;
   for (const auto& edge : graphData.requiredEdgesList) {
-    cout << "aresta: " << edge.id << " de: " << edge.from << " para: " << edge.to << endl;
     graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, edge.demand, edge.serviceCost, true);
   }
-  cout << "aresta requeridas ok" << endl;
   for (const auto& arc : graphData.requiredArcsList) {
     graph.adicionarArco(arc.from, arc.to, arc.traversalCost, arc.demand, arc.serviceCost, true);
   }
-  cout << "arcos requeridas ok" << endl;
   for (const auto& edge : graphData.regularEdgesList) {
     graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, 0, 0, false);
   }
-  cout << "aresta regulares ok" << endl;
   for (const auto& arc : graphData.regularArcsList) {
     graph.adicionarArco(arc.from, arc.to, arc.traversalCost, 0, 0, false);
   }
-  cout << "arcos regulares ok" << endl;
-  
   return graph;
 }
 
-void registerMetrics(Grafo graph) {
-  WAndPred wAndPred = graph.getWAndPred();
-  graph.imprimirMatrizW(wAndPred.first);
-  graph.imprimirPred(wAndPred.second);
-
-  cout << "1- Quantidade de vértices: " << graph.getQuantidadeVertices() << endl;
-  cout << "2- Quantidade de arestas: " << graph.getQuantidadeArestas() << endl;
-  cout << "3- Quantidade de arcos: " << graph.getQuantidadeArcos() << endl;
-  cout << "4- Quantidade de vértices requeridos: " << graph.getQuantidadeVerticesRequeridos() << endl;
-  cout << "5- Quantidade de arestas requeridas: " << graph.getQuantidadeArestasRequeridas() << endl;
-  cout << "6- Quantidade de arcos requeridos: " << graph.getQuantidadeArcosRequeridos() << endl;
-  cout << "7- Densidade do grafo: " << graph.getDensidadeGrafo() << endl;
-  cout << "9- Grau: " << endl;
-  cout << "\t9.1- Grau mínimo de entrada: " << graph.getGrauMinEntrada() << endl;
-  cout << "\t9.2- Grau máximo de entrada: " << graph.getGrauMaxEntrada() << endl;
-  cout << "\t9.3- Grau mínimo de saída: " << graph.getGrauMinSaida() << endl;
-  cout << "\t9.4- Grau máximo de saída: " << graph.getGrauMaxSaida() << endl;
-  cout << "10- Intermediação: " << endl;
-  vector<double> intermediacao = graph.getIntermediacao();
-  cout << "\tIntermediação dos nós:" << endl;
-  for(int i = 0; i < graph.getQuantidadeVertices(); i++) {
-    cout << "\tNó " << i << ": " << intermediacao[i] << endl;
+void escreverMetricasGerais(vector<Grafo> graphList) {
+  try {
+    string filename = "metricasGerais.csv";
+    cout << "Escrevendo métricas gerais no arquivo: " << filename << endl;
+    ofstream file(filename);
+    file << "NOME,QTD_VERTICES,QTD_ARESTAS,QTD_ARCOS,QTD_VERTICES_REQUERIDOS,QTD_ARESTAS_REQUERIDAS,QTD_ARCOS_REQUERIDOS,DENSIDADE_GRAFO,GRAU_MINIMO_ENTRADA,GRAU_MAXIMO_ENTRADA,GRAU_MINIMO_SAIDA,GRAU_MAXIMO_SAIDA,CAMINHO_MEDIO,DIAMETRO" << endl;
+    for (auto graph : graphList) {
+      file 
+        << graph.getNome() << ","
+        << graph.getQuantidadeVertices() << ","
+        << graph.getQuantidadeArestas() << ","
+        << graph.getQuantidadeArcos() << ","
+        << graph.getQuantidadeVerticesRequeridos() << ","
+        << graph.getQuantidadeArestasRequeridas() << ","
+        << graph.getQuantidadeArcosRequeridos() << ","
+        << graph.getDensidadeGrafo() << ","
+        << graph.getGrauMinEntrada() << ","
+        << graph.getGrauMaxEntrada() << ","
+        << graph.getGrauMinSaida() << ","
+        << graph.getGrauMaxSaida() << ","
+        << graph.getCaminhoMedio() << ","
+        << graph.getDiametro()
+        << endl;
+    }
+    file.close();
+  } catch(const std::exception& e) {
+    std::cerr << e.what() << '\n';
   }
-  cout << "11- Caminho médio: " << graph.getCaminhoMedio() << endl;
-  cout << "12- Diâmetro: " << graph.calcularDiametro() << endl;
+}
+
+void escreverIntermediacoes(vector<Grafo> graphList) {
+  try {
+    string filename = "intermediacoes.csv";
+    cout << "Escrevendo intermediações no arquivo: " << filename << endl;
+    
+    ofstream file(filename);
+    file << "NOME, VERTICE, INTERMEDIACAO" << endl;
+    
+    for(auto graph : graphList) {
+      vector<double> intermediacao = graph.getIntermediacao();
+      for(int i = 1; i <= graph.getQuantidadeVertices(); i++) {
+        file 
+          << graph.getNome() << ","
+          << i << ","
+          << intermediacao[i]
+          << endl;
+      }
+    }
+    file.close();
+  } catch(const std::exception& e) {
+    std::cerr << e.what() << '\n';
+  }
+}
+
+void escreverResultadosArquivoCsv(vector<Grafo> graphList) {
+  escreverMetricasGerais(graphList);
+  escreverIntermediacoes(graphList);
 }
 
 int main() {
   string inputFilesDir = "../exemplos/";
   string now = getCurrentDateTime("now");
+  vector<Grafo> grafoList;
   logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
 
-  vector<string> datFiles = getInputFiles(inputFilesDir);
+  vector<string> datFiles = readInputDirectory(inputFilesDir);
   if (datFiles.empty()) {
     logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
     return 1;
   }
-
-  // GraphData graphData = readInputFile(inputFilesDir, "mgval_0.50_10C.dat");
-  // Grafo grafo = registerGraph(graphData);
-  // grafo.floydWarshall();
-
-  // cout << "1- Quantidade de vértices: " << grafo.getQuantidadeVertices() << endl;
-  // cout << "2- Quantidade de arestas: " << grafo.getQuantidadeArestas() << endl;
-  // cout << "3- Quantidade de arcos: " << grafo.getQuantidadeArcos() << endl;
-  // cout << "4- Quantidade de vértices requeridos: " << grafo.getQuantidadeVerticesRequeridos() << endl;
-  // cout << "5- Quantidade de arestas requeridas: " << grafo.getQuantidadeArestasRequeridas() << endl;
-  // cout << "6- Quantidade de arcos requeridos: " << grafo.getQuantidadeArcosRequeridos() << endl;
-  // cout << "7- Densidade do grafo: " << grafo.getDensidadeGrafo() << endl;
-  // cout << "8- Componentes conectados: " << grafo.getComponentesConectados() << endl;
-  // cout << "9- Grau: " << endl;
-  // cout << "\t9.1- Grau mínimo de entrada: " << grafo.getGrauMinEntrada() << endl;
-  // cout << "\t9.2- Grau máximo de entrada: " << grafo.getGrauMaxEntrada() << endl;
-  // cout << "\t9.3- Grau mínimo de saída: " << grafo.getGrauMinSaida() << endl;
-  // cout << "\t9.4- Grau máximo de saída: " << grafo.getGrauMaxSaida() << endl;
-  // cout << "10- Intermediação: " << endl;
-  // vector<double> intermediacao = grafo.getIntermediacao();
-  // cout << "\tIntermediação dos nós:" << endl;
-  // for(int i = 0; i < grafo.getQuantidadeVertices(); i++) {
-  //   cout << "\tNó " << i << ": " << intermediacao[i] << endl;
-  // }
-  // cout << "11- Caminho médio: " << grafo.getCaminhoMedio() << endl;
-  // cout << "12- Diâmetro: " << grafo.calcularDiametro() << endl;
-
+  
   for (const string& fileName : datFiles) {
     GraphData graphData = readInputFile(inputFilesDir, fileName);
     Grafo grafo = registerGraph(graphData);
-    // grafo.floydWarshall();
-    cout << "grafo processado: " << grafo.getNome() << endl;
-    cout << "-----" << endl << endl;
+    grafo.floydWarshall();
+    grafoList.push_back(grafo);
   }
-
   logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
+  escreverResultadosArquivoCsv(grafoList);
+
   return 0;
 }
