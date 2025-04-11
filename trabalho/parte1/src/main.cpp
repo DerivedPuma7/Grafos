@@ -72,7 +72,6 @@ void registerMetrics(Grafo graph) {
   cout << "5- Quantidade de arestas requeridas: " << graph.getQuantidadeArestasRequeridas() << endl;
   cout << "6- Quantidade de arcos requeridos: " << graph.getQuantidadeArcosRequeridos() << endl;
   cout << "7- Densidade do grafo: " << graph.getDensidadeGrafo() << endl;
-  cout << "8- Componentes conectados: " << graph.getComponentesConectados() << endl;
   cout << "9- Grau: " << endl;
   cout << "\t9.1- Grau mínimo de entrada: " << graph.getGrauMinEntrada() << endl;
   cout << "\t9.2- Grau máximo de entrada: " << graph.getGrauMaxEntrada() << endl;
