@@ -342,7 +342,7 @@ public:
    * representa o maior caminho mais curto entre qualquer par de nós no grafo
    * grafos com diâmetro grande podem precisar de múltiplos depósitos
    */
-  int calcularDiametro() {
+  int getDiametro() {
     int diametro = 0;
     
     for(int i = 1; i < this->quantidadeVertices; i++) {
