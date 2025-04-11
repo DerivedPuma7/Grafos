@@ -25,7 +25,6 @@ vector<string> readInputDirectory(string inputFilesDir) {
         datFiles.push_back(entry.path().filename().string());
       }
     }
-    sort(datFiles.begin(), datFiles.end());
     return datFiles;
   } catch (const fs::filesystem_error& e) {
     logger("Erro ao acessar o diretório: " + string(e.what()));
@@ -119,6 +118,7 @@ int main() {
   logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
 
   vector<string> datFiles = readInputDirectory(inputFilesDir);
+  sort(datFiles.begin(), datFiles.end());
   if (datFiles.empty()) {
     logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
     return 1;
