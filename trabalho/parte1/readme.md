@@ -1,8 +1,9 @@
 # GCC262 - Grafos e suas aplicações - Trabalho Prático - Etapa 1
 
 ## Grupo:
-- Nome: Gustavo Ribeiro de Figueiredo
-- Matrícula: 202210846
+- Nome - Matrícula
+    - Gustavo Ribeiro de Figueiredo - 202210846
+    - Cesar Augusto Pires - 202210116
 - Professor: MAYRON CESAR DE OLIVEIRA MOREIRA
 
 ## Implementação:
