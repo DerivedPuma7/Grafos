@@ -25,6 +25,7 @@ vector<string> readInputDirectory(string inputFilesDir) {
         datFiles.push_back(entry.path().filename().string());
       }
     }
+    sort(datFiles.begin(), datFiles.end());
     return datFiles;
   } catch (const fs::filesystem_error& e) {
     logger("Erro ao acessar o diretório: " + string(e.what()));
@@ -131,6 +132,7 @@ int main() {
   }
   logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
   escreverResultadosArquivoCsv(grafoList);
-
+  cout << "Logs escritos nos arquivos do diretório logs/" << endl;
+  cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
   return 0;
 }
