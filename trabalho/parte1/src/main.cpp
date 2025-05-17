@@ -1,5 +1,6 @@
 #include <iostream>
 #include "entities/grafo.h"
+#include "entities/solucao.h"
 #include "utils/fileReader.h"
 #include "utils/logger.h"
 #include <filesystem>
@@ -111,28 +112,60 @@ void escreverResultadosArquivoCsv(vector<Grafo> graphList) {
   escreverIntermediacoes(graphList);
 }
 
+// int main() {
+//   string inputFilesDir = "../exemplos/";
+//   string now = getCurrentDateTime("now");
+//   vector<Grafo> grafoList;
+//   logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
+
+//   vector<string> datFiles = readInputDirectory(inputFilesDir);
+//   sort(datFiles.begin(), datFiles.end());
+//   if (datFiles.empty()) {
+//     logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
+//     return 1;
+//   }
+  
+//   for (const string& fileName : datFiles) {
+//     GraphData graphData = readInputFile(inputFilesDir, fileName);
+//     Grafo grafo = registerGraph(graphData);
+//     grafo.floydWarshall();
+//     grafoList.push_back(grafo);
+//     break;
+//   }
+//   logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
+//   escreverResultadosArquivoCsv(grafoList);
+//   cout << "Logs escritos nos arquivos do diretório logs/" << endl;
+//   cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
+//   return 0;
+// }
+
 int main() {
   string inputFilesDir = "../exemplos/";
   string now = getCurrentDateTime("now");
   vector<Grafo> grafoList;
   logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
 
-  vector<string> datFiles = readInputDirectory(inputFilesDir);
-  sort(datFiles.begin(), datFiles.end());
-  if (datFiles.empty()) {
-    logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
-    return 1;
-  }
+  // vector<string> datFiles = readInputDirectory(inputFilesDir);
+  // sort(datFiles.begin(), datFiles.end());
+  // if (datFiles.empty()) {
+  //   logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
+  //   return 1;
+  // }
   
-  for (const string& fileName : datFiles) {
-    GraphData graphData = readInputFile(inputFilesDir, fileName);
-    Grafo grafo = registerGraph(graphData);
-    grafo.floydWarshall();
-    grafoList.push_back(grafo);
-  }
-  logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
-  escreverResultadosArquivoCsv(grafoList);
-  cout << "Logs escritos nos arquivos do diretório logs/" << endl;
-  cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
+  GraphData graphData = readInputFile(inputFilesDir, "BHW1.dat");
+  Grafo grafo = registerGraph(graphData);
+  grafo.floydWarshall();
+  // grafoList.push_back(grafo);
+
+  Solucao solucao(grafo, 5, 1);
+
+  // grafo.imprimirVerticesRequeridos();
+  // grafo.imprimirArestasRequeridas();
+  // grafo.imprimirArcosRequeridos();
+
+  // logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
+  // escreverResultadosArquivoCsv(grafoList);
+  // cout << "Logs escritos nos arquivos do diretório logs/" << endl;
+  // cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
   return 0;
 }
