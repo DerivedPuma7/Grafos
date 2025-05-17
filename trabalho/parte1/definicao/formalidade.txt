@@ -1,3 +1,12 @@
+Estudar problemas de logística é crucial para otimizar o fluxo de bens e serviços,
+resultando em maior eficiência e redução de custos para empresas e consumidores. A análise detalhada de processos logísticos permite identificar gargalos,
+melhorar o planejamento de rotas, gerenciar estoques de forma mais eficaz e
+implementar tecnologias que aprimoram a tomada de decisões.
+A logística desempenha um papel fundamental na competitividade das empresas, influenciando diretamente a satisfação do cliente e a sustentabilidade
+ambiental. Ao compreender os desafios logísticos, é possível desenvolver soluções
+inovadoras que impulsionam o crescimento econômico e promovem um futuro
+mais eficiente e responsável.
+
 O problema base pode ser definido em um grafo conexo G = (V, E), onde V é
 o conjunto de nós e E o conjunto de arestas. Os nós representam intersecções
 (ou esquinas) em uma região (urbana ou rural), enquanto as arestas são as vias
@@ -45,3 +54,15 @@ Importante: muitas dessas métricas utilizam os resultados da matriz de
 caminhos mais curtos de múltiplas fontes. Assim, como um dos produtos da
 Etapa 1, é necessário desenvolver o algoritmo que gera tal matriz, assim como
 a matriz de predecessores
+
+
+---
+
+Na Fase 2, pretende-se desenvolver um algoritmo construtivo para o problema
+estudado na Fase 1. Por construtivo, entende-se como um algoritmo que inicia com uma solução vazia e ao final de suas iterações, constrói uma solução
+que atende a todas as restrições do problema. Logo, deseja-se que vocês implementem um algoritmo que retorne uma solução que:
+1- não ultrapasse a capacidade dos veículos em cada rota;
+2- cada serviço seja executado por exatamente 1 rota;
+3- caso uma rota passe mais de uma vez por um vértice, ou uma aresta, ou
+um arco requeridos, o valor de demanda do serviço e seu custo de serviço
+devem ser contados apenas 1 vez.
