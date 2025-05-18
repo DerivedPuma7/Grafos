@@ -97,31 +97,31 @@ public:
     this->inicializaPred();
   }
 
-  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required) {
+  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required, int idAlternativo) {
     this->quantidadeArestas++;
     if(required) {
       this->quantidadeArestasRequeridas++;
       string id = to_string(verticeOrigem) + "_" + to_string(verticeDestino);
-      Aresta aresta(id, verticeOrigem, verticeDestino, peso, demanda, custoServico);
+      Aresta aresta(id, verticeOrigem, verticeDestino, peso, demanda, custoServico, idAlternativo);
       this->arestasRequeridas.insert(aresta);
     }
     this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, custoServico, required});
     this->listaAdjacencia[verticeDestino].push_back({verticeOrigem, peso, demanda, custoServico, required});
   }
 
-  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required) {
+  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required, int idAlternativo) {
     this->quantidadeArcos++;
     if(required) {
       this->quantidadeArcosRequeridos++;
       string id = to_string(verticeOrigem) + "_" + to_string(verticeDestino);
-      Aresta aresta(id, verticeOrigem, verticeDestino, peso, demanda, custoServico);
+      Aresta aresta(id, verticeOrigem, verticeDestino, peso, demanda, custoServico, idAlternativo);
       this->arcosRequeridos.insert(aresta);
     }
     this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, custoServico, required});
   }
 
-  void adicionarVerticeRequerido(int vertice, int demanda, int custo) {
-    Vertice verticeRequerido(vertice, demanda, custo);
+  void adicionarVerticeRequerido(int vertice, int demanda, int custo, int idAlternativo) {
+    Vertice verticeRequerido(vertice, demanda, custo, idAlternativo);
     this->verticesRequeridos.insert(verticeRequerido);
   }
 
