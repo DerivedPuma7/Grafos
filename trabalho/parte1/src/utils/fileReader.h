@@ -91,6 +91,12 @@ public:
       else if(line.find("Optimal value:") != string::npos) {
         optimalValue = stoi(line.substr(line.find_last_of(" \t") + 1));
       }
+      else if(line.find("Capacity:") != string::npos) {
+        capacity = stoi(line.substr(line.find_last_of(" \t") + 1));
+      }
+      else if(line.find("Depot Node:") != string::npos) {
+        depotNode = stoi(line.substr(line.find_last_of(" \t") + 1));
+      }
 
       // ReN => Required Nodes => Vértices Requeridos
       else if(line.find("ReN.") != string::npos) {
