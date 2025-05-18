@@ -9,6 +9,11 @@
 namespace fs = std::filesystem;
 using namespace std;
 
+bool arquivoExiste(string dir, string filename) {
+  fs::path caminhoCompleto = fs::path(dir) / filename;
+  return fs::exists(caminhoCompleto) && fs::is_regular_file(caminhoCompleto);
+}
+
 GraphData readInputFile(string inputFilesDir, string fileName) {
   GraphData graphData;
   logger("\n" + getCurrentDateTime("now") + " Processando arquivo: " + fileName);
@@ -139,11 +144,58 @@ void escreverResultadosArquivoCsv(vector<Grafo> graphList) {
 //   return 0;
 // }
 
-int main() {
-  string inputFilesDir = "../exemplos/";
-  string now = getCurrentDateTime("now");
+void processarArquivoUnico(string inputDir, string filename) {
+  GraphData graphData = readInputFile(inputDir, "BHW1.dat");
+  Grafo grafo = registerGraph(graphData);
+  grafo.floydWarshall();
+  Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+}
+
+void processarDiretorioDeEntrada(string inputDir) {
+  vector<string> datFiles = readInputDirectory(inputDir);
   vector<Grafo> grafoList;
-  logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
+  sort(datFiles.begin(), datFiles.end());
+  if (datFiles.empty()) {
+    logger("Nenhum arquivo .dat encontrado no diretório " + inputDir);
+    return;
+  }
+  
+  for (const string& fileName : datFiles) {
+    GraphData graphData = readInputFile(inputDir, fileName);
+    Grafo grafo = registerGraph(graphData);
+    grafo.floydWarshall();
+    grafoList.push_back(grafo);
+    Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+    break;
+  }
+  logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
+  escreverResultadosArquivoCsv(grafoList);
+  cout << "Logs escritos nos arquivos do diretório logs/" << endl;
+  cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
+}
+
+int main(int argc, char* argv[]) {
+  cout << "Uso: " << argv[0] << " <nome_do_arquivo>\n";
+  cout << "ou\n";
+  cout << "Uso: " << argv[0] << "\n";
+  string inputFilesDir = "../exemplos/";
+
+  cout << "argc: " << argc << endl;
+  cout << "argv[0]: " << argv[0] << endl;
+  cout << "argv[1]: " << argv[1] << endl << endl;
+
+  if(argc == 2) {
+    string nomeArquivo = argv[1];
+    processarArquivoUnico(inputFilesDir, nomeArquivo);
+  }
+  if (argc < 2) {
+    processarDiretorioDeEntrada(inputFilesDir);
+  }
+  return 0;
+
+  // string now = getCurrentDateTime("now");
+  // vector<Grafo> grafoList;
+  // logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
 
   // vector<string> datFiles = readInputDirectory(inputFilesDir);
   // sort(datFiles.begin(), datFiles.end());
@@ -152,12 +204,12 @@ int main() {
   //   return 1;
   // }
   
-  GraphData graphData = readInputFile(inputFilesDir, "BHW1.dat");
-  Grafo grafo = registerGraph(graphData);
-  grafo.floydWarshall();
+  // GraphData graphData = readInputFile(inputFilesDir, "BHW1.dat");
+  // Grafo grafo = registerGraph(graphData);
+  // grafo.floydWarshall();
   // grafoList.push_back(grafo);
 
-  Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+  // Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
 
   // grafo.imprimirVerticesRequeridos();
   // grafo.imprimirArestasRequeridas();
