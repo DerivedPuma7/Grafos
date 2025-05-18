@@ -157,7 +157,7 @@ int main() {
   grafo.floydWarshall();
   // grafoList.push_back(grafo);
 
-  Solucao solucao(grafo, 5, 1);
+  Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
 
   // grafo.imprimirVerticesRequeridos();
   // grafo.imprimirArestasRequeridas();
