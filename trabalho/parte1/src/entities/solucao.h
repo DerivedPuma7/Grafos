@@ -10,6 +10,7 @@ using namespace std;
 enum TipoServico { NO, ARESTA, ARCO };
 struct Servico {
   TipoServico tipo;
+  string id;
   int from; // para vertices, é o id do vertice
   int to;
   int demanda;
@@ -42,7 +43,8 @@ private:
     vector<Vertice> verticesRequeridos = this->grafo.getVerticesRequeridos();
     bool atendido = false;
     for(const auto& vertice : verticesRequeridos) {
-      this->servicosPendentes.push_back({ NO, vertice.id, -1, vertice.demanda, vertice.custo, atendido });
+      string idServico = "NO_" + to_string(vertice.id);
+      this->servicosPendentes.push_back({ NO, idServico, vertice.id, -1, vertice.demanda, vertice.custo, atendido });
     }
   }
 
@@ -50,7 +52,8 @@ private:
     vector<Aresta> arestasRequeridas = this->grafo.getArestasRequeridas();
     bool atendido = false;
     for(const auto& aresta: arestasRequeridas) {
-      this->servicosPendentes.push_back({ ARESTA, aresta.origem, aresta.destino, aresta.demanda, aresta.custoServico, atendido });
+      string idServico = "ARESTA_" + to_string(aresta.origem); + "_" + to_string(aresta.destino);
+      this->servicosPendentes.push_back({ ARESTA, idServico, aresta.origem, aresta.destino, aresta.demanda, aresta.custoServico, atendido });
     }
   }
 
@@ -58,7 +61,8 @@ private:
     vector<Aresta> arcosRequeridos = this->grafo.getArcosRequeridos();
     bool atendido = false;
     for(const auto& arco: arcosRequeridos) {
-      this->servicosPendentes.push_back({ ARCO, arco.origem, arco.destino, arco.demanda, arco.custoServico, atendido });
+      string idServico = "ARCO_" + to_string(arco.origem); + "_" + to_string(arco.destino);
+      this->servicosPendentes.push_back({ ARCO, idServico, arco.origem, arco.destino, arco.demanda, arco.custoServico, atendido });
     }
   }
 
@@ -197,12 +201,26 @@ public:
     }
     cout << "\t\t melhor serviço encontrado. origem: " << melhorServico.from << " destino: " << melhorServico.to << endl;
     this->print("\t\t custo ate o proximo serviço: ", menorCusto);
+
+    Servico *servicoEmVerticeAssociadoAProximaOrigem = this->getServicoPendenteAssociadoAoVertice(melhorServico.from);
+
+    if(
+      (melhorServico.tipo == ARESTA || melhorServico.tipo == ARCO)  && 
+      servicoEmVerticeAssociadoAProximaOrigem != NULL
+    ) {
+      for(int i = 0; i < this->servicosPendentes.size(); i++) {
+        if(servicoEmVerticeAssociadoAProximaOrigem->id == this->servicosPendentes[i].id) {
+          melhorIndice = i;
+        }
+      }
+    }
+
     return { melhorIndice, menorCusto };
   }
 
   void atenderServico(Servico& servico, Rota& rotaAtual, int& cargaRestante, int& verticeAtual, int menorCusto) {
     servico.atendido = true;
-    
+
     int destino = servico.tipo == NO ? servico.from : servico.to;
 
     this->print("\t vertice atual: ", verticeAtual);
@@ -214,6 +232,19 @@ public:
     rotaAtual.caminho.push_back(destino);
     cargaRestante -= servico.demanda;
     verticeAtual = destino;
+  }
+
+  Servico* getServicoPendenteAssociadoAoVertice(int vertice) {
+    for(int i = 0; i < this->servicosPendentes.size(); i++) {
+      if(
+        this->servicosPendentes[i].tipo == NO &&
+        this->servicosPendentes[i].atendido == false &&
+        this->servicosPendentes[i].from == vertice
+      ) {
+        return &this->servicosPendentes[i];
+      }
+    }
+    return NULL;
   }
 
   void imprimirRotas() {
