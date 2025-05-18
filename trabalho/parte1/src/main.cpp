@@ -9,13 +9,17 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-bool arquivoExiste(string dir, string filename) {
-  fs::path caminhoCompleto = fs::path(dir) / filename;
+bool arquivoExiste(string dir, string fileName) {
+  fs::path caminhoCompleto = fs::path(dir) / fileName;
   return fs::exists(caminhoCompleto) && fs::is_regular_file(caminhoCompleto);
 }
 
 GraphData readInputFile(string inputFilesDir, string fileName) {
   GraphData graphData;
+  if(!arquivoExiste(inputFilesDir, fileName)) {
+    cerr << "Arquivo de entrada não encontrado\n";
+    exit(-1);
+  }
   logger("\n" + getCurrentDateTime("now") + " Processando arquivo: " + fileName);
   graphData.loadFromFile(inputFilesDir + fileName);
   logDataFromInputFiles(graphData);
@@ -145,7 +149,7 @@ void escreverResultadosArquivoCsv(vector<Grafo> graphList) {
 // }
 
 void processarArquivoUnico(string inputDir, string filename) {
-  GraphData graphData = readInputFile(inputDir, "BHW1.dat");
+  GraphData graphData = readInputFile(inputDir, filename);
   Grafo grafo = registerGraph(graphData);
   grafo.floydWarshall();
   Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
@@ -175,14 +179,10 @@ void processarDiretorioDeEntrada(string inputDir) {
 }
 
 int main(int argc, char* argv[]) {
-  cout << "Uso: " << argv[0] << " <nome_do_arquivo>\n";
+  cout << "Uso: " << argv[0] << " nome_do_arquivo.dat\n";
   cout << "ou\n";
   cout << "Uso: " << argv[0] << "\n";
   string inputFilesDir = "../exemplos/";
-
-  cout << "argc: " << argc << endl;
-  cout << "argv[0]: " << argv[0] << endl;
-  cout << "argv[1]: " << argv[1] << endl << endl;
 
   if(argc == 2) {
     string nomeArquivo = argv[1];
