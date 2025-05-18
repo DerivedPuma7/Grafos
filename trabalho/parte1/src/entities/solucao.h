@@ -97,19 +97,40 @@ public:
     this->imprimirRotas();
   }
 
+  void print(string param, int value) {
+    cout << param << value << endl;
+  }
+  void br() {
+    cout << "\n";
+  }
+
   void encontrarRotas() {
+    int iteracao = 1;
     while(this->aindaExisteServicoPendente()) {
+      this->print("iteração: ", iteracao);
+
       int cargaRestante = this->capacidadeVeiculo;
       int verticeAtual = this->verticeDeposito;
+
+      this->print("cargaRestante: ", cargaRestante);
+      this->print("verticeAtual: ", verticeAtual);
+
       Rota rotaAtual;
       rotaAtual.caminho.push_back(this->verticeDeposito);
 
       while(true) {
-        tuple<int, int> melhorServico = this->encontrarMelhorServico(verticeAtual, cargaRestante); // melhorIndice, menorCusto
+
+        tuple<int, int> melhorServico = this->encontrarMelhorServico(verticeAtual, cargaRestante);
         auto [melhorIndice, menorCusto] = melhorServico;
+        
+        // this->print("\t melhorIndice: ", melhorIndice);
+        this->print("\t custo ate o serviço: ", menorCusto);
         
         // não há alternativas de caminho, voltar ao deposito
         if(melhorIndice == -1) { 
+          cout << "\t\t voltando ao deposito" << endl;
+          this->print("\t\t vertice atual: ", verticeAtual);
+
           int custoAteDeposito = this->grafo.getCustoCaminhoMinimo(verticeAtual, this->verticeDeposito);
           rotaAtual.custoTotal += custoAteDeposito;
           rotaAtual.caminho.push_back(this->verticeDeposito);
@@ -118,8 +139,17 @@ public:
         }
 
         Servico& servico = this->servicosPendentes[melhorIndice];
+
+        cout << "\t realizando serviços" << endl;
+        string tipoServico = servico.tipo == NO ? "VERTICE" : servico.tipo == ARESTA ? "ARESTA" : "ARCO";
+        cout << "\t servico a ser atendido: " << endl;
+        cout << "\t tipo: " << tipoServico << " | from: " << servico.from << " | to: " << servico.to << endl;
+        
         this->atenderServico(servico, rotaAtual, cargaRestante, verticeAtual, menorCusto);
+        
+        this->br();
       }
+      iteracao++;
     }
   }
 
@@ -137,18 +167,36 @@ public:
   tuple<int, int> encontrarMelhorServico(int verticeAtual, int cargaRestante) {
     int melhorIndice = -1;
     int menorCusto = INT_MAX;
+    Servico melhorServico;
+
+    print("\t\tencontrando melhor serviço. vertice atual: ", verticeAtual);
 
     for(int i = 0; i < this->servicosPendentes.size(); i++) {
       Servico s = this->servicosPendentes[i];
       if(s.atendido || s.demanda > cargaRestante) continue;
 
       int destino = s.from;
+      if(verticeAtual == s.from && s.to != -1) {
+        destino = s.to;
+      }
+      
+      // print("\t\tencontrando melhor serviço. destino: ", destino);
+      
       int custoAteServico = this->grafo.getCustoCaminhoMinimo(verticeAtual, destino);
-      if(custoAteServico < menorCusto) {
+      // print("\t\t encontrando melhor serviço. destino: ", destino);
+      // print("\t\t encontrando melhor serviço. custo: ", custoAteServico);
+
+      if(
+        (custoAteServico < menorCusto) ||
+        (custoAteServico == menorCusto && s.tipo != NO)
+      ) {
+        melhorServico = s;
         melhorIndice = i;
         menorCusto = custoAteServico;
       }
     }
+    cout << "\t\t melhor serviço encontrado. origem: " << melhorServico.from << " destino: " << melhorServico.to << endl;
+    this->print("\t\t custo ate o proximo serviço: ", menorCusto);
     return { melhorIndice, menorCusto };
   }
 
@@ -156,6 +204,9 @@ public:
     servico.atendido = true;
     
     int destino = servico.tipo == NO ? servico.from : servico.to;
+
+    this->print("\t vertice atual: ", verticeAtual);
+    this->print("\t proximo destino: ", destino);
     
     rotaAtual.custoTotal += menorCusto + servico.custoServico;
     rotaAtual.servicosAtendidos.push_back(servico);

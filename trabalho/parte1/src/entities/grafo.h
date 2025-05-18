@@ -143,6 +143,9 @@ public:
         }
       }
     }
+
+    this->imprimirMatrizW(this->getWAndPred().first);
+    cout << "\n\n";
   }
 
   void imprimirGrafo() {
@@ -162,9 +165,9 @@ public:
     for (int i = 1; i <= this->quantidadeVertices; i++) {
       for (int j = 1; j <= this->quantidadeVertices; j++) {
         if (matriz[i][j] == numeric_limits<int>::max()) {
-          cout << "INF ";
+          cout << "INF     ";
         } else {
-          cout << matriz[i][j] << " ";
+          cout << matriz[i][j] << "     ";
         }
       }
       cout << endl;
