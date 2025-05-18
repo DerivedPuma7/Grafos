@@ -257,3 +257,11 @@ public:
     }
   }
 };
+
+
+/**
+ * TODO:
+ * ler a demanda e o nó deposito de cada arquivo
+ * ler todos os arquivos
+ * saída de acordo com o esperado
+ */
