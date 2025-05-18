@@ -19,12 +19,14 @@ public:
     int from;
     int to;
 
-    void imprimirServico()
-    {
+    ServicoPrestadoDto(TipoServicoPrestado tipo, const string& id, int from, int to)
+        : tipo(tipo), id(id), from(from), to(to) {}
+
+    void imprimirServico() const {
         string tipoStr = (tipo == TipoServicoPrestado::D) ? "D" : "S";
-        cout << "(" << setw(2) << tipoStr << ","
-             << setw(2) << id << ","
-             << setw(2) << from << ","
-             << setw(2) << to << ") ";
+        cout << "(" << tipoStr << ","
+             << id << ","
+             << from << ","
+             << to << ") ";
     }
 };
