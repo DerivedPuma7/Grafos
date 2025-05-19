@@ -22,11 +22,11 @@ public:
     ServicoPrestadoDto(TipoServicoPrestado tipo, const string& id, int from, int to)
         : tipo(tipo), id(id), from(from), to(to) {}
 
-    void imprimirServico() const {
+    void imprimirServico(std::ostream& out) const {
         string tipoStr = (tipo == TipoServicoPrestado::D) ? "D" : "S";
-        cout << "(" << tipoStr << ","
-             << id << ","
-             << from << ","
-             << to << ") ";
+        out << "(" << tipoStr << ","
+            << id << ","
+            << from << ","
+            << to << ") ";
     }
 };
