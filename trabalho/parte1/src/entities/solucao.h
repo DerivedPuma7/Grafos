@@ -226,7 +226,7 @@ public:
   }
 
   void imprimirRotas(int clocksUsados) {
-    criarDiretorioResultado();
+    this->criarDiretorioResultado();
 
     string nomeArquivo = "resultados/sol-" + this->grafo.getNome() + ".dat";
     std::ofstream out(nomeArquivo);

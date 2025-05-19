@@ -127,37 +127,11 @@ void escreverResultadosArquivoCsv(vector<Grafo> graphList) {
   escreverIntermediacoes(graphList);
 }
 
-// int main() {
-//   string inputFilesDir = "../exemplos/";
-//   string now = getCurrentDateTime("now");
-//   vector<Grafo> grafoList;
-//   logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
-
-//   vector<string> datFiles = readInputDirectory(inputFilesDir);
-//   sort(datFiles.begin(), datFiles.end());
-//   if (datFiles.empty()) {
-//     logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
-//     return 1;
-//   }
-  
-//   for (const string& fileName : datFiles) {
-//     GraphData graphData = readInputFile(inputFilesDir, fileName);
-//     Grafo grafo = registerGraph(graphData);
-//     grafo.floydWarshall();
-//     grafoList.push_back(grafo);
-//     break;
-//   }
-//   logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
-//   escreverResultadosArquivoCsv(grafoList);
-//   cout << "Logs escritos nos arquivos do diretório logs/" << endl;
-//   cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
-//   return 0;
-// }
-
 void processarArquivoUnico(string inputDir, string filename) {
   GraphData graphData = readInputFile(inputDir, filename);
   Grafo grafo = registerGraph(graphData);
   grafo.floydWarshall();
+  cout << "encontrando rotas para: " << graphData.name << endl;
   Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
 }
 
@@ -175,8 +149,9 @@ void processarDiretorioDeEntrada(string inputDir) {
     Grafo grafo = registerGraph(graphData);
     grafo.floydWarshall();
     grafoList.push_back(grafo);
+    
+    cout << "encontrando rotas para: " << graphData.name << endl;
     Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
-    break;
   }
   logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
   escreverResultadosArquivoCsv(grafoList);
@@ -197,33 +172,5 @@ int main(int argc, char* argv[]) {
   if (argc < 2) {
     processarDiretorioDeEntrada(inputFilesDir);
   }
-  return 0;
-
-  // string now = getCurrentDateTime("now");
-  // vector<Grafo> grafoList;
-  // logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
-
-  // vector<string> datFiles = readInputDirectory(inputFilesDir);
-  // sort(datFiles.begin(), datFiles.end());
-  // if (datFiles.empty()) {
-  //   logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
-  //   return 1;
-  // }
-  
-  // GraphData graphData = readInputFile(inputFilesDir, "BHW1.dat");
-  // Grafo grafo = registerGraph(graphData);
-  // grafo.floydWarshall();
-  // grafoList.push_back(grafo);
-
-  // Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
-
-  // grafo.imprimirVerticesRequeridos();
-  // grafo.imprimirArestasRequeridas();
-  // grafo.imprimirArcosRequeridos();
-
-  // logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
-  // escreverResultadosArquivoCsv(grafoList);
-  // cout << "Logs escritos nos arquivos do diretório logs/" << endl;
-  // cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
   return 0;
 }
