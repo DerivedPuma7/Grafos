@@ -145,6 +145,10 @@ public:
     return existePendencia;
   }
 
+  /**
+   * TODO
+   * precisamos melhorar esses IFs para deixar mais claro os seus motivos
+   */
   tuple<int, int> encontrarMelhorServico(int verticeAtual, int cargaRestante) {
     int melhorIndice = -1;
     int menorCusto = INT_MAX;
@@ -155,13 +159,13 @@ public:
       if(s.atendido || s.demanda > cargaRestante) continue;
 
       int destino = s.from;
-      if(verticeAtual == s.from && s.to != -1) {
+      if(verticeAtual == s.from && s.tipo != NO) {
         destino = s.to;
       }
-      
-      
+
       int custoAteServico = this->grafo.getCustoCaminhoMinimo(verticeAtual, destino);
 
+      // priorizando serviços em arcos e arestas
       if(
         (custoAteServico < menorCusto) ||
         (custoAteServico == menorCusto && s.tipo != NO)
@@ -174,6 +178,7 @@ public:
 
     Servico *servicoEmVerticeAssociadoAProximaOrigem = this->getServicoPendenteAssociadoAoVertice(melhorServico.from);
 
+    // se o proximo serviço for um arco ou aresta obrigatorio, e houver um serviço associado o vertice de origem desse proximo serviço, execute o serviço do vertice primeiro
     if(
       (melhorServico.tipo == ARESTA || melhorServico.tipo == ARCO)  && 
       servicoEmVerticeAssociadoAProximaOrigem != NULL
