@@ -33,6 +33,7 @@ struct RequiredArc {
 };
 
 struct RegularEdge {
+  string id;
   int from;
   int to;
   int traversalCost;
@@ -135,7 +136,7 @@ public:
         while (getline(file, line) && !line.empty() && line.find("ReA.") == string::npos) {
           stringstream ss(line);
           RegularEdge edge;
-          ss >> edge.from >> edge.to >> edge.traversalCost;
+          ss >> edge.id >> edge.from >> edge.to >> edge.traversalCost;
           regularEdgesList.push_back(edge);
         }
       }
@@ -179,6 +180,16 @@ public:
       vertices.insert(arc.to);
     }
     this->totalNodes = vertices.size();
+  }
+
+  void imprimirMetricas() {
+    cout << "\n\nmetricas\n";
+    cout << "quantidade vertices: " << this->totalNodes << endl;
+    cout << "quantidade vertices obrigatorios: " << requiredNodesList.size() << endl;
+    cout << "quantidade arestas: " << regularEdgesList.size() << endl;
+    cout << "quantidade arestas obrigatorias: " << requiredEdgesList.size() << endl;
+    cout << "quantidade arcos: " << regularArcsList.size() << endl;
+    cout << "quantidade arcos obrigatorios: " << requiredArcsList.size() << endl;
   }
 };
 
