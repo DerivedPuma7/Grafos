@@ -4,6 +4,8 @@
 #include <iostream>
 #include <climits>
 #include <algorithm>
+#include <cstdlib>
+#include <fstream>
 #include "grafo.h"
 #include "servico.h"
 #include "rota.h"
@@ -81,7 +83,7 @@ public:
   Solucao(const Grafo& grafo, int capacidadeVeiculo, int verticeDeposito)
   : grafo(grafo), capacidadeVeiculo(capacidadeVeiculo), verticeDeposito(verticeDeposito) {
     clock_t inicio = clock();
-    
+
     this->identificarServicosPendentes();
     this->encontrarRotas();
 
@@ -215,22 +217,44 @@ public:
     return NULL;
   }
 
+  void criarDiretorioResultado() {
+    #ifdef _WIN32
+      system("mkdir resultados >nul 2>&1");  // Windows (sem mostrar erro se já existir)
+    #else
+      system("mkdir -p resultados");         // Linux/macOS
+    #endif
+  }
+
   void imprimirRotas(int clocksUsados) {
-    cout << this->custoTotal << endl;
-    cout << this->rotasSolucao.size() << endl;
-    cout << clocksUsados << endl;
-    cout << clocksUsados;
-    for(int i = 0; i < this->rotasSolucao.size(); i++) {
-      cout << "\n"
-         << "0 " << "1 "
-         << setw(2) << right << i + 1 << " "
-         << setw(2) << right << this->rotasSolucao[i].servicosAtendidos.size() << " "
-         << setw(4) << right << this->rotasSolucao[i].custoTotal << " "
-         << setw(2) << right << this->rotasSolucao[i].servicosPrestados.size() << " ";
-      for (const auto& servico : this->rotasSolucao[i].servicosPrestados) {
-          servico.imprimirServico();
-      }
+    criarDiretorioResultado();
+
+    string nomeArquivo = "resultados/sol-" + this->grafo.getNome() + ".dat";
+    std::ofstream out(nomeArquivo);
+
+    if (!out.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo: " << nomeArquivo << std::endl;
+        return;
     }
-    cout << endl;
+
+    out << this->custoTotal << std::endl;
+    out << this->rotasSolucao.size() << std::endl;
+    out << clocksUsados << std::endl;
+    out << clocksUsados;
+
+    for (int i = 0; i < this->rotasSolucao.size(); i++) {
+        out << "\n"
+            << "0 " << "1 "
+            << std::setw(2) << std::right << i + 1 << " "
+            << std::setw(2) << std::right << this->rotasSolucao[i].servicosAtendidos.size() << " "
+            << std::setw(4) << std::right << this->rotasSolucao[i].custoTotal << " "
+            << std::setw(2) << std::right << this->rotasSolucao[i].servicosPrestados.size() << " ";
+
+        for (const auto& servico : this->rotasSolucao[i].servicosPrestados) {
+            servico.imprimirServico(out);  // precisa receber o stream como argumento
+        }
+    }
+
+    out << std::endl;
+    out.close();
   }
 };
