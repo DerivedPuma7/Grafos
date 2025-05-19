@@ -143,9 +143,6 @@ public:
         }
       }
     }
-
-    this->imprimirMatrizW(this->getWAndPred().first);
-    cout << "\n\n";
   }
 
   void imprimirGrafo() {
