@@ -44,20 +44,26 @@ vector<string> readInputDirectory(string inputFilesDir) {
 
 Grafo registerGraph(GraphData graphData) {
   Grafo graph(graphData.totalNodes, graphData.name);
+  int id = 1;
   for (const auto& node : graphData.requiredNodesList) {
-    graph.adicionarVerticeRequerido(node.id, node.demand, node.serviceCost);
+    graph.adicionarVerticeRequerido(node.id, node.demand, node.serviceCost, id);
+    id++;
   }
   for (const auto& edge : graphData.requiredEdgesList) {
-    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, edge.demand, edge.serviceCost, true);
+    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, edge.demand, edge.serviceCost, true, id);
+    id++;
   }
   for (const auto& arc : graphData.requiredArcsList) {
-    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, arc.demand, arc.serviceCost, true);
+    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, arc.demand, arc.serviceCost, true, id);
+    id++;
   }
   for (const auto& edge : graphData.regularEdgesList) {
-    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, 0, 0, false);
+    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, 0, 0, false, id);
+    id++;
   }
   for (const auto& arc : graphData.regularArcsList) {
-    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, 0, 0, false);
+    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, 0, 0, false, id);
+    id++;
   }
   return graph;
 }

@@ -13,13 +13,15 @@ public:
   int peso;
   int demanda;
   int custoServico;
-  Aresta(string id, int origem, int destino, int peso, int demanda, int custo) {
+  int idAlternativo;
+  Aresta(string id, int origem, int destino, int peso, int demanda, int custo, int idAlternativo) {
     this->id = id;
     this->origem = origem;
     this->destino = destino;
     this->peso = peso;
     this->demanda = demanda;
     this->custoServico = custo;
+    this->idAlternativo = idAlternativo;
   }
 
   bool operator<(const Aresta& other) const {

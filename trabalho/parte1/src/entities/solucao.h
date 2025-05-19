@@ -1,34 +1,23 @@
 #pragma once
 
+#include <iomanip> 
 #include <iostream>
 #include <climits>
 #include <algorithm>
+#include <cstdlib>
+#include <fstream>
 #include "grafo.h"
+#include "servico.h"
+#include "rota.h"
 
 using namespace std;
-
-enum TipoServico { NO, ARESTA, ARCO };
-struct Servico {
-  TipoServico tipo;
-  string id;
-  int from; // para vertices, é o id do vertice
-  int to;
-  int demanda;
-  int custoServico;
-  bool atendido = false;
-};
-
-struct Rota {
-  vector<int> caminho;
-  vector<Servico> servicosAtendidos;
-  int custoTotal = 0;
-};
 
 class Solucao {
 private:
   Grafo grafo;
   int capacidadeVeiculo;
   int verticeDeposito;
+  int custoTotal = 0;
   vector<Rota> rotas;
   vector<Servico> servicosPendentes;
   vector<Rota> rotasSolucao;
@@ -43,8 +32,7 @@ private:
     vector<Vertice> verticesRequeridos = this->grafo.getVerticesRequeridos();
     bool atendido = false;
     for(const auto& vertice : verticesRequeridos) {
-      string idServico = "NO_" + to_string(vertice.id);
-      this->servicosPendentes.push_back({ NO, idServico, vertice.id, -1, vertice.demanda, vertice.custo, atendido });
+      this->servicosPendentes.push_back({ NO, to_string(vertice.idAlternativo), vertice.id, -1, vertice.demanda, vertice.custo, atendido });
     }
   }
 
@@ -52,8 +40,8 @@ private:
     vector<Aresta> arestasRequeridas = this->grafo.getArestasRequeridas();
     bool atendido = false;
     for(const auto& aresta: arestasRequeridas) {
-      string idServico = "ARESTA_" + to_string(aresta.origem); + "_" + to_string(aresta.destino);
-      this->servicosPendentes.push_back({ ARESTA, idServico, aresta.origem, aresta.destino, aresta.demanda, aresta.custoServico, atendido });
+      string idServico = "ARESTA_" + to_string(aresta.origem) + "_" + to_string(aresta.destino);
+      this->servicosPendentes.push_back({ ARESTA, to_string(aresta.idAlternativo), aresta.origem, aresta.destino, aresta.demanda, aresta.custoServico, atendido });
     }
   }
 
@@ -61,8 +49,7 @@ private:
     vector<Aresta> arcosRequeridos = this->grafo.getArcosRequeridos();
     bool atendido = false;
     for(const auto& arco: arcosRequeridos) {
-      string idServico = "ARCO_" + to_string(arco.origem); + "_" + to_string(arco.destino);
-      this->servicosPendentes.push_back({ ARCO, idServico, arco.origem, arco.destino, arco.demanda, arco.custoServico, atendido });
+      this->servicosPendentes.push_back({ ARCO, to_string(arco.idAlternativo), arco.origem, arco.destino, arco.demanda, arco.custoServico, atendido });
     }
   }
 
@@ -95,65 +82,55 @@ private:
 public:
   Solucao(const Grafo& grafo, int capacidadeVeiculo, int verticeDeposito)
   : grafo(grafo), capacidadeVeiculo(capacidadeVeiculo), verticeDeposito(verticeDeposito) {
-    this->identificarServicosPendentes();
-    // this->imprimirServicosPendentes();
-    this->encontrarRotas();
-    this->imprimirRotas();
-  }
+    clock_t inicio = clock();
 
-  void print(string param, int value) {
-    cout << param << value << endl;
-  }
-  void br() {
-    cout << "\n";
+    this->identificarServicosPendentes();
+    this->encontrarRotas();
+
+    clock_t final = clock();
+
+    int clocksUsados = (final - inicio);
+
+    this->imprimirRotas(clocksUsados);
   }
 
   void encontrarRotas() {
-    int iteracao = 1;
+    
     while(this->aindaExisteServicoPendente()) {
-      this->print("iteração: ", iteracao);
-
       int cargaRestante = this->capacidadeVeiculo;
       int verticeAtual = this->verticeDeposito;
 
-      this->print("cargaRestante: ", cargaRestante);
-      this->print("verticeAtual: ", verticeAtual);
-
       Rota rotaAtual;
       rotaAtual.caminho.push_back(this->verticeDeposito);
+
+      ServicoPrestadoDto servicoPrestadoDto(TipoServicoPrestado::D, "0", this->verticeDeposito, this->verticeDeposito);
+
+      rotaAtual.servicosPrestados.push_back({servicoPrestadoDto});
 
       while(true) {
 
         tuple<int, int> melhorServico = this->encontrarMelhorServico(verticeAtual, cargaRestante);
         auto [melhorIndice, menorCusto] = melhorServico;
         
-        // this->print("\t melhorIndice: ", melhorIndice);
-        this->print("\t custo ate o serviço: ", menorCusto);
-        
         // não há alternativas de caminho, voltar ao deposito
         if(melhorIndice == -1) { 
-          cout << "\t\t voltando ao deposito" << endl;
-          this->print("\t\t vertice atual: ", verticeAtual);
+
+          ServicoPrestadoDto servicoPrestadoDto(TipoServicoPrestado::D, "0", this->verticeDeposito, this->verticeDeposito);
+
+          rotaAtual.servicosPrestados.push_back({servicoPrestadoDto});
 
           int custoAteDeposito = this->grafo.getCustoCaminhoMinimo(verticeAtual, this->verticeDeposito);
           rotaAtual.custoTotal += custoAteDeposito;
           rotaAtual.caminho.push_back(this->verticeDeposito);
           this->rotasSolucao.push_back(rotaAtual);
+          this->custoTotal += rotaAtual.custoTotal;
           break;
         }
 
         Servico& servico = this->servicosPendentes[melhorIndice];
 
-        cout << "\t realizando serviços" << endl;
-        string tipoServico = servico.tipo == NO ? "VERTICE" : servico.tipo == ARESTA ? "ARESTA" : "ARCO";
-        cout << "\t servico a ser atendido: " << endl;
-        cout << "\t tipo: " << tipoServico << " | from: " << servico.from << " | to: " << servico.to << endl;
-        
         this->atenderServico(servico, rotaAtual, cargaRestante, verticeAtual, menorCusto);
-        
-        this->br();
       }
-      iteracao++;
     }
   }
 
@@ -173,8 +150,6 @@ public:
     int menorCusto = INT_MAX;
     Servico melhorServico;
 
-    print("\t\tencontrando melhor serviço. vertice atual: ", verticeAtual);
-
     for(int i = 0; i < this->servicosPendentes.size(); i++) {
       Servico s = this->servicosPendentes[i];
       if(s.atendido || s.demanda > cargaRestante) continue;
@@ -184,11 +159,8 @@ public:
         destino = s.to;
       }
       
-      // print("\t\tencontrando melhor serviço. destino: ", destino);
       
       int custoAteServico = this->grafo.getCustoCaminhoMinimo(verticeAtual, destino);
-      // print("\t\t encontrando melhor serviço. destino: ", destino);
-      // print("\t\t encontrando melhor serviço. custo: ", custoAteServico);
 
       if(
         (custoAteServico < menorCusto) ||
@@ -199,8 +171,6 @@ public:
         menorCusto = custoAteServico;
       }
     }
-    cout << "\t\t melhor serviço encontrado. origem: " << melhorServico.from << " destino: " << melhorServico.to << endl;
-    this->print("\t\t custo ate o proximo serviço: ", menorCusto);
 
     Servico *servicoEmVerticeAssociadoAProximaOrigem = this->getServicoPendenteAssociadoAoVertice(melhorServico.from);
 
@@ -223,9 +193,9 @@ public:
 
     int destino = servico.tipo == NO ? servico.from : servico.to;
 
-    this->print("\t vertice atual: ", verticeAtual);
-    this->print("\t proximo destino: ", destino);
-    
+    ServicoPrestadoDto servicoPrestadoDto(TipoServicoPrestado::S, servico.id, verticeAtual, destino);
+
+    rotaAtual.servicosPrestados.push_back({servicoPrestadoDto});
     rotaAtual.custoTotal += menorCusto + servico.custoServico;
     rotaAtual.servicosAtendidos.push_back(servico);
 
@@ -247,14 +217,45 @@ public:
     return NULL;
   }
 
-  void imprimirRotas() {
-    cout << "Rotas: " << endl;
-    for(int i = 0; i < this->rotasSolucao.size(); i++) {
-      cout << "Rota[" << i << "]" << endl;
-      for(int j = 0; j < this->rotasSolucao[i].caminho.size(); j++) {
-        cout << "\t caminho: " << this->rotasSolucao[i].caminho[j] << endl;
-      }
+  void criarDiretorioResultado() {
+    #ifdef _WIN32
+      system("mkdir resultados >nul 2>&1");  // Windows (sem mostrar erro se já existir)
+    #else
+      system("mkdir -p resultados");         // Linux/macOS
+    #endif
+  }
+
+  void imprimirRotas(int clocksUsados) {
+    criarDiretorioResultado();
+
+    string nomeArquivo = "resultados/sol-" + this->grafo.getNome() + ".dat";
+    std::ofstream out(nomeArquivo);
+
+    if (!out.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo: " << nomeArquivo << std::endl;
+        return;
     }
+
+    out << this->custoTotal << std::endl;
+    out << this->rotasSolucao.size() << std::endl;
+    out << clocksUsados << std::endl;
+    out << clocksUsados;
+
+    for (int i = 0; i < this->rotasSolucao.size(); i++) {
+        out << "\n"
+            << "0 " << "1 "
+            << std::setw(2) << std::right << i + 1 << " "
+            << std::setw(2) << std::right << this->rotasSolucao[i].servicosAtendidos.size() << " "
+            << std::setw(4) << std::right << this->rotasSolucao[i].custoTotal << " "
+            << std::setw(2) << std::right << this->rotasSolucao[i].servicosPrestados.size() << " ";
+
+        for (const auto& servico : this->rotasSolucao[i].servicosPrestados) {
+            servico.imprimirServico(out);  // precisa receber o stream como argumento
+        }
+    }
+
+    out << std::endl;
+    out.close();
   }
 };
 
