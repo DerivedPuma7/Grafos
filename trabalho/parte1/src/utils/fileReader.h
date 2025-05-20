@@ -101,7 +101,7 @@ public:
 
       // ReN => Required Nodes => Vértices Requeridos
       else if(line.find("ReN.") != string::npos) {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           stringstream ss(line);
           RequiredNode node;
           string nodeId;
@@ -113,7 +113,7 @@ public:
 
       // ReE => Required Edges => Arestas Requeridas
       else if(line.find("ReE.") != string::npos) {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           stringstream ss(line);
           RequiredEdge edge;
           ss >> edge.id >> edge.from >> edge.to >> edge.traversalCost >> edge.demand >> edge.serviceCost;
@@ -123,7 +123,7 @@ public:
 
       // ReA => Required Arcs => Arcos Requeridos
       else if(line.find("ReA.") != string::npos) {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           stringstream ss(line);
           RequiredArc arc;
           ss >> arc.id >> arc.from >> arc.to >> arc.traversalCost >> arc.demand >> arc.serviceCost;
@@ -133,7 +133,7 @@ public:
 
       // EDGE => Arestas Regulares
       else if(normalizeString(line) == "EDGE FROM N. TO N. T. COST") {
-        while (getline(file, line) && !line.empty() && line.find("ReA.") == string::npos) {
+        while (getline(file, line) && !line.empty() && line.find("ReA.") == string::npos && line != "\r") {
           stringstream ss(line);
           RegularEdge edge;
           ss >> edge.id >> edge.from >> edge.to >> edge.traversalCost;
@@ -143,7 +143,7 @@ public:
 
       // Arc => Arcos Regulares
       else if(normalizeString(line) == "ARC FROM N. TO N. T. COST") {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           if(normalizeString(line) == "the data is based on the CARP instance gdb1.") {
             continue;
           }
