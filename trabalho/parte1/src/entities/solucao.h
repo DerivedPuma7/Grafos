@@ -18,6 +18,7 @@ private:
   int capacidadeVeiculo;
   int verticeDeposito;
   int custoTotal = 0;
+  int clocks;
   vector<Rota> rotas;
   vector<Servico> servicosPendentes;
   vector<Rota> rotasSolucao;
@@ -88,10 +89,9 @@ public:
     this->encontrarRotas();
 
     clock_t final = clock();
-
-    int clocksUsados = (final - inicio);
-
-    this->imprimirRotas(clocksUsados);
+    this->clocks = (final - inicio);
+    
+    this->imprimirRotas();
   }
 
   void encontrarRotas() {
@@ -230,7 +230,7 @@ public:
     #endif
   }
 
-  void imprimirRotas(int clocksUsados) {
+  void imprimirRotas() {
     this->criarDiretorioResultado();
 
     string nomeArquivo = "resultados/sol-" + this->grafo.getNome() + ".dat";
@@ -243,8 +243,8 @@ public:
 
     out << this->custoTotal << std::endl;
     out << this->rotasSolucao.size() << std::endl;
-    out << clocksUsados << std::endl;
-    out << clocksUsados;
+    out << this->clocks << std::endl;
+    out << this->clocks;
 
     for (int i = 0; i < this->rotasSolucao.size(); i++) {
         out << "\n"
