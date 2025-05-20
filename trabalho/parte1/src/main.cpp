@@ -149,9 +149,10 @@ void processarDiretorioDeEntrada(string inputDir) {
     Grafo grafo = registerGraph(graphData);
     grafo.floydWarshall();
     grafoList.push_back(grafo);
-    
-    cout << "encontrando rotas para: " << graphData.name << endl;
+
+    cout << "encontrando rotas para: " << graphData.name << " | ";
     Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+    cout << "rotas encontradas para: " << graphData.name << endl;
   }
   logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
   escreverResultadosArquivoCsv(grafoList);
@@ -166,8 +167,8 @@ int main(int argc, char* argv[]) {
   string inputFilesDir = "../exemplos/";
 
   if(argc == 2) {
-    string nomeArquivo = argv[1];
-    processarArquivoUnico(inputFilesDir, nomeArquivo);
+    string filename = argv[1];
+    processarArquivoUnico(inputFilesDir, filename);
   }
   if (argc < 2) {
     processarDiretorioDeEntrada(inputFilesDir);
