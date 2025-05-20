@@ -25,12 +25,17 @@ grafos/
         ├──logs/                    # Arquivos .txt com logs informativos
         ├──src/                     # Arquivos com a implementação
             ├──entities/            # Contém as classes Grafo e Aresta
+            ├──resultados/          # Contém os resultados com as rotas para cada arquivo de entrada
             ├──utils/               # Contém implementações auxiliares
             ├──main.cpp             # Arquivo de entrada
             ├──visualizacao.ipynb   # Visualização dos resultados
             ├──metricasGerais.cvs   # Arquivo csv com as métricas gerais dos grafos
             ├──intermediacoes.cvs   # Arquivo csv com as métricas das intermediações de cada vértice de cada grafo
         ├──readme.md                # Este arquivo
+    ├──parte2/
+        │
+        ├──dados/                   # dados de entrada para a parte 2 do trabalho
+        ├──solucoes/                # soluções de referência disponibilizadas pelo professor
 ```
 
 ## Explicações gerais sobre a implementação
@@ -43,6 +48,7 @@ grafos/
 ## Visualização dos resultados
 - A visualização dos dados está disponível no arquivo visualizacao.ipynb em forma de tabelas
 - São como as tabelas do excel, mas com uma visualização aprimorada
+- As rotas estão disponibilizadas no diretório src/resultados
 
 ## Dependências obrigatórias
 - Compilador de código c++
@@ -74,8 +80,9 @@ grafos/
 g++ main.cpp -o main
 ```
 - Execute o arquivo
+    - É possível passar argumentos via CLI para indicar qual arquivo deseja executar
     - Após isso, 2 arquivos .csv deverão ser gerados. Eles contém o resultado das métricas para cada grafo
 ```
-./main
+./main ou ./main nomearquivo.dat
 ```
 - Abra o arquivo visualizacao.ipynb e execute as células sequencialmente

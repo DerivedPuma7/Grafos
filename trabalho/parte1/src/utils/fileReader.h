@@ -33,6 +33,7 @@ struct RequiredArc {
 };
 
 struct RegularEdge {
+  string id;
   int from;
   int to;
   int traversalCost;
@@ -91,10 +92,16 @@ public:
       else if(line.find("Optimal value:") != string::npos) {
         optimalValue = stoi(line.substr(line.find_last_of(" \t") + 1));
       }
+      else if(line.find("Capacity:") != string::npos) {
+        capacity = stoi(line.substr(line.find_last_of(" \t") + 1));
+      }
+      else if(line.find("Depot Node:") != string::npos) {
+        depotNode = stoi(line.substr(line.find_last_of(" \t") + 1));
+      }
 
       // ReN => Required Nodes => Vértices Requeridos
       else if(line.find("ReN.") != string::npos) {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           stringstream ss(line);
           RequiredNode node;
           string nodeId;
@@ -106,7 +113,7 @@ public:
 
       // ReE => Required Edges => Arestas Requeridas
       else if(line.find("ReE.") != string::npos) {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           stringstream ss(line);
           RequiredEdge edge;
           ss >> edge.id >> edge.from >> edge.to >> edge.traversalCost >> edge.demand >> edge.serviceCost;
@@ -116,7 +123,7 @@ public:
 
       // ReA => Required Arcs => Arcos Requeridos
       else if(line.find("ReA.") != string::npos) {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           stringstream ss(line);
           RequiredArc arc;
           ss >> arc.id >> arc.from >> arc.to >> arc.traversalCost >> arc.demand >> arc.serviceCost;
@@ -126,17 +133,17 @@ public:
 
       // EDGE => Arestas Regulares
       else if(normalizeString(line) == "EDGE FROM N. TO N. T. COST") {
-        while (getline(file, line) && !line.empty() && line.find("ReA.") == string::npos) {
+        while (getline(file, line) && !line.empty() && line.find("ReA.") == string::npos && line != "\r") {
           stringstream ss(line);
           RegularEdge edge;
-          ss >> edge.from >> edge.to >> edge.traversalCost;
+          ss >> edge.id >> edge.from >> edge.to >> edge.traversalCost;
           regularEdgesList.push_back(edge);
         }
       }
 
       // Arc => Arcos Regulares
       else if(normalizeString(line) == "ARC FROM N. TO N. T. COST") {
-        while (getline(file, line) && !line.empty()) {
+        while (getline(file, line) && !line.empty() && line != "\r") {
           if(normalizeString(line) == "the data is based on the CARP instance gdb1.") {
             continue;
           }
@@ -173,6 +180,16 @@ public:
       vertices.insert(arc.to);
     }
     this->totalNodes = vertices.size();
+  }
+
+  void imprimirMetricas() {
+    cout << "\n\nmetricas\n";
+    cout << "quantidade vertices: " << this->totalNodes << endl;
+    cout << "quantidade vertices obrigatorios: " << requiredNodesList.size() << endl;
+    cout << "quantidade arestas: " << regularEdgesList.size() << endl;
+    cout << "quantidade arestas obrigatorias: " << requiredEdgesList.size() << endl;
+    cout << "quantidade arcos: " << regularArcsList.size() << endl;
+    cout << "quantidade arcos obrigatorios: " << requiredArcsList.size() << endl;
   }
 };
 

@@ -1,11 +1,14 @@
+#pragma once
+
 #include <iostream>
 #include <queue>
 #include <vector>
 #include <tuple>
 #include <set>
 #include <limits>
+#include <string>
 #include "vertice.h"
-
+#include "aresta.h"
 
 using namespace std;
 
@@ -22,6 +25,8 @@ private:
   int quantidadeArcosRequeridos;
   ListaAdjacencia* listaAdjacencia;
   set<Vertice> verticesRequeridos;
+  set<Aresta> arestasRequeridas;
+  set<Aresta> arcosRequeridos;
   int** matrizW;
   int** pred;
 
@@ -92,25 +97,31 @@ public:
     this->inicializaPred();
   }
 
-  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required) {
+  void adicionarAresta(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required, int idAlternativo) {
     this->quantidadeArestas++;
     if(required) {
       this->quantidadeArestasRequeridas++;
+      string id = to_string(verticeOrigem) + "_" + to_string(verticeDestino);
+      Aresta aresta(id, verticeOrigem, verticeDestino, peso, demanda, custoServico, idAlternativo);
+      this->arestasRequeridas.insert(aresta);
     }
     this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, custoServico, required});
     this->listaAdjacencia[verticeDestino].push_back({verticeOrigem, peso, demanda, custoServico, required});
   }
 
-  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required) {
+  void adicionarArco(int verticeOrigem, int verticeDestino, int peso, int demanda, int custoServico, bool required, int idAlternativo) {
     this->quantidadeArcos++;
     if(required) {
       this->quantidadeArcosRequeridos++;
+      string id = to_string(verticeOrigem) + "_" + to_string(verticeDestino);
+      Aresta aresta(id, verticeOrigem, verticeDestino, peso, demanda, custoServico, idAlternativo);
+      this->arcosRequeridos.insert(aresta);
     }
     this->listaAdjacencia[verticeOrigem].push_back({verticeDestino, peso, demanda, custoServico, required});
   }
 
-  void adicionarVerticeRequerido(int vertice, int demanda, int custo) {
-    Vertice verticeRequerido(vertice, demanda, custo);
+  void adicionarVerticeRequerido(int vertice, int demanda, int custo, int idAlternativo) {
+    Vertice verticeRequerido(vertice, demanda, custo, idAlternativo);
     this->verticesRequeridos.insert(verticeRequerido);
   }
 
@@ -151,9 +162,9 @@ public:
     for (int i = 1; i <= this->quantidadeVertices; i++) {
       for (int j = 1; j <= this->quantidadeVertices; j++) {
         if (matriz[i][j] == numeric_limits<int>::max()) {
-          cout << "INF ";
+          cout << "INF     ";
         } else {
-          cout << matriz[i][j] << " ";
+          cout << matriz[i][j] << "     ";
         }
       }
       cout << endl;
@@ -353,6 +364,63 @@ public:
       }
     }
     return diametro;
+  }
+
+  vector<Vertice> getVerticesRequeridos() {
+    vector<Vertice> verticesRequeridos;
+    for(auto vertice : this->verticesRequeridos) {
+      verticesRequeridos.push_back(vertice);
+    }
+
+    return verticesRequeridos;
+  }
+
+  vector<Aresta> getArestasRequeridas() {
+    vector<Aresta> arestasRequeridas;
+    for(auto aresta : this->arestasRequeridas) {
+      arestasRequeridas.push_back(aresta);
+    }
+
+    return arestasRequeridas;
+  }
+
+  vector<Aresta> getArcosRequeridos() {
+    vector<Aresta> arcosRequeridos;
+    for(auto arco : this->arcosRequeridos) {
+      arcosRequeridos.push_back(arco);
+    }
+
+    return arcosRequeridos;
+  }
+
+  void imprimirVerticesRequeridos() {
+    cout << "Vértices Requeridos grafo: " << endl;
+    for(auto vertice : this->verticesRequeridos) {
+      cout << vertice.id << " ";
+    }
+    cout << endl << endl;
+  }
+
+  void imprimirArestasRequeridas() {
+    cout << "Arestas Requeridas: " << endl;
+    for(auto aresta : this->arestasRequeridas) {
+      cout << aresta.origem << " -> " << aresta.destino << endl;
+    }
+    cout << endl;
+  }
+
+  void imprimirArcosRequeridos() {
+    cout << "Arcos Requeridos: " << endl;
+    for(auto arco : this->arcosRequeridos) {
+      cout << arco.origem << " -> " << arco.destino << endl;
+    }
+    cout << endl;
+  }
+
+  int getCustoCaminhoMinimo(int origem, int destino) {
+    WAndPred wAndPred = this->getWAndPred();
+    int** matrizW = wAndPred.first;
+    return matrizW[origem][destino];
   }
 };
 

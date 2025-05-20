@@ -1,5 +1,6 @@
 #include <iostream>
 #include "entities/grafo.h"
+#include "entities/solucao.h"
 #include "utils/fileReader.h"
 #include "utils/logger.h"
 #include <filesystem>
@@ -8,12 +9,21 @@
 namespace fs = std::filesystem;
 using namespace std;
 
+bool arquivoExiste(string dir, string fileName) {
+  fs::path caminhoCompleto = fs::path(dir) / fileName;
+  return fs::exists(caminhoCompleto) && fs::is_regular_file(caminhoCompleto);
+}
+
 GraphData readInputFile(string inputFilesDir, string fileName) {
   GraphData graphData;
-  logger("\n" + getCurrentDateTime("now") + " Processando arquivo: " + fileName);
+  if(!arquivoExiste(inputFilesDir, fileName)) {
+    cerr << "Arquivo de entrada não encontrado\n";
+    exit(-1);
+  }
+  logger("\n" + getCurrentDateTime("now") + " Lendo arquivo: " + fileName);
   graphData.loadFromFile(inputFilesDir + fileName);
   logDataFromInputFiles(graphData);
-  logger(getCurrentDateTime("now") + " Arquivo " + fileName + " processado com sucesso\n\n");
+  logger(getCurrentDateTime("now") + " Arquivo " + fileName + " lido com sucesso\n\n");
   return graphData;
 }
 
@@ -34,20 +44,26 @@ vector<string> readInputDirectory(string inputFilesDir) {
 
 Grafo registerGraph(GraphData graphData) {
   Grafo graph(graphData.totalNodes, graphData.name);
+  int id = 1;
   for (const auto& node : graphData.requiredNodesList) {
-    graph.adicionarVerticeRequerido(node.id, node.demand, node.serviceCost);
+    graph.adicionarVerticeRequerido(node.id, node.demand, node.serviceCost, id);
+    id++;
   }
   for (const auto& edge : graphData.requiredEdgesList) {
-    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, edge.demand, edge.serviceCost, true);
+    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, edge.demand, edge.serviceCost, true, id);
+    id++;
   }
   for (const auto& arc : graphData.requiredArcsList) {
-    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, arc.demand, arc.serviceCost, true);
+    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, arc.demand, arc.serviceCost, true, id);
+    id++;
   }
   for (const auto& edge : graphData.regularEdgesList) {
-    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, 0, 0, false);
+    graph.adicionarAresta(edge.from, edge.to, edge.traversalCost, 0, 0, false, id);
+    id++;
   }
   for (const auto& arc : graphData.regularArcsList) {
-    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, 0, 0, false);
+    graph.adicionarArco(arc.from, arc.to, arc.traversalCost, 0, 0, false, id);
+    id++;
   }
   return graph;
 }
@@ -111,28 +127,54 @@ void escreverResultadosArquivoCsv(vector<Grafo> graphList) {
   escreverIntermediacoes(graphList);
 }
 
-int main() {
-  string inputFilesDir = "../exemplos/";
-  string now = getCurrentDateTime("now");
-  vector<Grafo> grafoList;
-  logger("\n\n" + now + " Iniciando processamento do diretório " + inputFilesDir);
+void processarArquivoUnico(string inputDir, string filename) {
+  GraphData graphData = readInputFile(inputDir, filename);
+  Grafo grafo = registerGraph(graphData);
+  grafo.floydWarshall();
+  logger("Encontrando rotas para: " + grafo.getNome());
+  Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+  logger("Rotas disponíveis no diretorio resultados/sol-" + grafo.getNome());
+  cout << "Logs escritos nos arquivos do diretório logs/" << endl;
+  cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
+}
 
-  vector<string> datFiles = readInputDirectory(inputFilesDir);
+void processarDiretorioDeEntrada(string inputDir) {
+  vector<string> datFiles = readInputDirectory(inputDir);
+  vector<Grafo> grafoList;
   sort(datFiles.begin(), datFiles.end());
   if (datFiles.empty()) {
-    logger("Nenhum arquivo .dat encontrado no diretório " + inputFilesDir);
-    return 1;
+    logger("Nenhum arquivo .dat encontrado no diretório " + inputDir);
+    return;
   }
   
   for (const string& fileName : datFiles) {
-    GraphData graphData = readInputFile(inputFilesDir, fileName);
+    GraphData graphData = readInputFile(inputDir, fileName);
     Grafo grafo = registerGraph(graphData);
     grafo.floydWarshall();
     grafoList.push_back(grafo);
+
+    logger("Encontrando rotas para: " + grafo.getNome());
+    Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+    logger("Rotas disponíveis no diretorio: resultados/sol-" + grafo.getNome());
   }
-  logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
+  logger("\nProcessamento concluído para " + to_string(datFiles.size()) + " arquivos");
   escreverResultadosArquivoCsv(grafoList);
   cout << "Logs escritos nos arquivos do diretório logs/" << endl;
   cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
+}
+
+int main(int argc, char* argv[]) {
+  cout << "Uso: " << argv[0] << " nome_do_arquivo.dat\n";
+  cout << "ou\n";
+  cout << "Uso: " << argv[0] << "\n";
+  string inputFilesDir = "../exemplos/";
+
+  if(argc == 2) {
+    string filename = argv[1];
+    processarArquivoUnico(inputFilesDir, filename);
+  }
+  if (argc < 2) {
+    processarDiretorioDeEntrada(inputFilesDir);
+  }
   return 0;
 }
