@@ -20,10 +20,10 @@ GraphData readInputFile(string inputFilesDir, string fileName) {
     cerr << "Arquivo de entrada não encontrado\n";
     exit(-1);
   }
-  logger("\n" + getCurrentDateTime("now") + " Processando arquivo: " + fileName);
+  logger("\n" + getCurrentDateTime("now") + " Lendo arquivo: " + fileName);
   graphData.loadFromFile(inputFilesDir + fileName);
   logDataFromInputFiles(graphData);
-  logger(getCurrentDateTime("now") + " Arquivo " + fileName + " processado com sucesso\n\n");
+  logger(getCurrentDateTime("now") + " Arquivo " + fileName + " lido com sucesso\n\n");
   return graphData;
 }
 
@@ -131,8 +131,11 @@ void processarArquivoUnico(string inputDir, string filename) {
   GraphData graphData = readInputFile(inputDir, filename);
   Grafo grafo = registerGraph(graphData);
   grafo.floydWarshall();
-  cout << "encontrando rotas para: " << graphData.name << endl;
+  logger("Encontrando rotas para: " + grafo.getNome());
   Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+  logger("Rotas disponíveis no diretorio resultados/sol-" + grafo.getNome());
+  cout << "Logs escritos nos arquivos do diretório logs/" << endl;
+  cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
 }
 
 void processarDiretorioDeEntrada(string inputDir) {
@@ -150,11 +153,11 @@ void processarDiretorioDeEntrada(string inputDir) {
     grafo.floydWarshall();
     grafoList.push_back(grafo);
 
-    cout << "encontrando rotas para: " << graphData.name << " | ";
+    logger("Encontrando rotas para: " + grafo.getNome());
     Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
-    cout << "rotas encontradas para: " << graphData.name << endl;
+    logger("Rotas disponíveis no diretorio: resultados/sol-" + grafo.getNome());
   }
-  logger("Processamento concluído para " + to_string(datFiles.size()) + " arquivos");
+  logger("\nProcessamento concluído para " + to_string(datFiles.size()) + " arquivos");
   escreverResultadosArquivoCsv(grafoList);
   cout << "Logs escritos nos arquivos do diretório logs/" << endl;
   cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
