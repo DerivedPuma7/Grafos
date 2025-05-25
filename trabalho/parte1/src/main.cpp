@@ -128,11 +128,20 @@ void escreverResultadosArquivoCsv(vector<Grafo> graphList) {
 }
 
 void processarArquivoUnico(string inputDir, string filename) {
+  clock_t inicio = clock();
+
   GraphData graphData = readInputFile(inputDir, filename);
   Grafo grafo = registerGraph(graphData);
   grafo.floydWarshall();
+
   logger("Encontrando rotas para: " + grafo.getNome());
   Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+  
+  clock_t final = clock();
+  int totalClocks = (final - inicio);
+
+  solucao.imprimirRotas(totalClocks);
+  
   logger("Rotas disponíveis no diretorio resultados/sol-" + grafo.getNome());
   cout << "Logs escritos nos arquivos do diretório logs/" << endl;
   cout << "Visualização disponível no arquivo visualizacao.ipynb" << endl;
@@ -148,13 +157,20 @@ void processarDiretorioDeEntrada(string inputDir) {
   }
   
   for (const string& fileName : datFiles) {
+    clock_t inicio = clock();
+    
     GraphData graphData = readInputFile(inputDir, fileName);
     Grafo grafo = registerGraph(graphData);
     grafo.floydWarshall();
     grafoList.push_back(grafo);
-
+    
     logger("Encontrando rotas para: " + grafo.getNome());
     Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+    
+    clock_t final = clock();
+    int totalClocks = (final - inicio);
+    
+    solucao.imprimirRotas(totalClocks);
     logger("Rotas disponíveis no diretorio: resultados/sol-" + grafo.getNome());
   }
   logger("\nProcessamento concluído para " + to_string(datFiles.size()) + " arquivos");
@@ -171,9 +187,11 @@ int main(int argc, char* argv[]) {
 
   if(argc == 2) {
     string filename = argv[1];
+    cout << "\n\tProcessando arquivo. Aguarde...\n";
     processarArquivoUnico(inputFilesDir, filename);
   }
   if (argc < 2) {
+    cout << "\n\tProcessando diretório de entrada. Aguarde...\n";
     processarDiretorioDeEntrada(inputFilesDir);
   }
   return 0;
