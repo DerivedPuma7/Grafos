@@ -54,36 +54,71 @@ private:
     }
   }
 
-  void identificarServicosPendentesProximosDeposito() {
-    vector<Servico> servicosOrdenadosPorProximidadeDeposito;
-    for(int i = 0; i < this->servicosPendentes.size(); i++) {
-      servicosOrdenadosPorProximidadeDeposito.push_back(this->servicosPendentes[i]);
+  int calcularCustoRota(const vector<Servico>& servicos) {
+    if (servicos.empty()) {
+      return 0;
+    }
+    int custoRota = 0;
+    int verticeFinalAnterior = this->verticeDeposito;
+
+    for (const auto& servico : servicos) {
+      int verticeInicioAtual = servico.from;
+      custoRota += this->grafo.getCustoCaminhoMinimo(verticeFinalAnterior, verticeInicioAtual);
+      custoRota += servico.custoServico;
+      verticeFinalAnterior = (servico.tipo == NO) ? servico.from : servico.to;
+    }
+    custoRota += this->grafo.getCustoCaminhoMinimo(verticeFinalAnterior, this->verticeDeposito);
+    return custoRota;
+  }
+
+  bool aplicar2optEmRota(Rota& rota) {
+    bool houveMelhoraNestaRota = false;
+    if (rota.servicosAtendidos.size() < 2) {
+      return false;
     }
 
-    sort(
-      servicosOrdenadosPorProximidadeDeposito.begin(), 
-      servicosOrdenadosPorProximidadeDeposito.end(),
-      [ this ](const Servico& a, const Servico& b) {
-        int distanciaA;
-        int distanciaB;
+    vector<Servico> melhorSequencia = rota.servicosAtendidos;
+    while (true) {
+      bool melhoriaNestaIteracao = false;
+      int melhorCustoIteracao = rota.custoTotal;
 
-        if(a.tipo == NO) {
-          distanciaA = this->grafo.getCustoCaminhoMinimo(a.from, this->verticeDeposito);
-        } else {
-          distanciaA = this->grafo.getCustoCaminhoMinimo(a.to, this->verticeDeposito);
+      for (int i = 0; i < rota.servicosAtendidos.size() - 1; ++i) {
+        for (int j = i + 1; j < rota.servicosAtendidos.size(); ++j) {
+          vector<Servico> novaSequencia = melhorSequencia;
+
+          bool contemArcoDirecionado = false;
+          for (int k = i + 1; k <= j; ++k) {
+            if (novaSequencia[k].tipo == ARCO) {
+              contemArcoDirecionado = true;
+              break;
+            }
+          }
+          if (contemArcoDirecionado) {
+            continue; // não podemos inverter arcos
+          }
+
+          std::reverse(novaSequencia.begin() + i + 1, novaSequencia.begin() + j + 1);
+
+          int novoCusto = this->calcularCustoRota(novaSequencia);
+
+          if (novoCusto < melhorCustoIteracao) {
+            melhorCustoIteracao = novoCusto;
+            melhorSequencia = novaSequencia;
+            melhoriaNestaIteracao = true;
+          }
         }
-
-        if(b.tipo == NO) {
-          distanciaB = this->grafo.getCustoCaminhoMinimo(b.from, this->verticeDeposito);
-        } else {
-          distanciaB = this->grafo.getCustoCaminhoMinimo(b.to, this->verticeDeposito);
-        }
-
-        return distanciaA < distanciaB;
       }
-    );
 
-    this->servicosPendentesOrdenadosProximidadeDepositoAsc = servicosOrdenadosPorProximidadeDeposito;
+      if (melhoriaNestaIteracao) {
+        rota.servicosAtendidos = melhorSequencia;
+        rota.custoTotal = melhorCustoIteracao;
+        houveMelhoraNestaRota = true;
+      } else {
+        // a rota está otimizada
+        break;
+      }
+    }
+    return houveMelhoraNestaRota;
   }
 
   void imprimirServicosPendentes() {
@@ -265,6 +300,23 @@ public:
       }
     }
     return NULL;
+  }
+
+  void otimizarCom2opt() {
+    bool melhoriaGlobal = true;
+    while (melhoriaGlobal) {
+      melhoriaGlobal = false;
+      for (auto& rota : this->rotasSolucao) {
+        if (aplicar2optEmRota(rota)) {
+          melhoriaGlobal = true;
+        }
+      }
+    }
+    // recalcular o custo total
+    this->custoTotal = 0;
+    for(const auto& rota : this->rotasSolucao) {
+      this->custoTotal += rota.custoTotal;
+    }
   }
 
   void criarDiretorioResultado() {
