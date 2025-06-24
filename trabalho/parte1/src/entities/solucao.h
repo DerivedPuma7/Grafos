@@ -226,10 +226,60 @@ public:
   }
 
   /**
-   * TODO
-   * precisamos melhorar esses IFs para deixar mais claro os seus motivos
+   * esse método tenta encontrar um serviço intermediário entre o depósito e o vértice atual, de forma a otimizar a rota evitando que o veículo se afaste muito do depósito quando a carga estiver acabando.
+   * essa abordagem não funcionou muito bem, mas vamos manter o código para fins de documentação.
    */
-  tuple<int, int> encontrarMelhorServico(int verticeAtual, int cargaRestante) {
+  tuple<int, int> encontrarServicoIntermediarioEntreDepositoEVerticeAtual(int verticeAtual, int cargaRestante) {
+    int melhorIndice = -1;
+    int menorCusto = INT_MAX;
+    Servico melhorServico;
+    int custoDeslocamentoFinal = -1;
+
+    for(int i = 0; i < this->servicosPendentes.size(); i++) {
+      Servico s = this->servicosPendentes[i];
+      if(s.atendido || s.demanda > cargaRestante) continue;
+
+      int destino = s.from;
+      if(verticeAtual == s.from && s.tipo != NO) {
+        destino = s.to;
+      }
+
+      int custoAteServico = this->grafo.getCustoCaminhoMinimo(verticeAtual, destino);
+      int custoServicoAteDeposito = this->grafo.getCustoCaminhoMinimo(destino, this->verticeDeposito);
+      int custoTotal = custoAteServico + custoServicoAteDeposito;
+
+      // priorizando serviços em arcos e arestas
+      if(
+        (custoTotal < menorCusto) ||
+        (custoTotal == menorCusto && s.tipo != NO)
+      ) {
+        melhorServico = s;
+        melhorIndice = i;
+        menorCusto = custoTotal;
+        custoDeslocamentoFinal = custoAteServico;
+      }
+    }
+
+    Servico *servicoEmVerticeAssociadoAProximaOrigem = this->getServicoPendenteAssociadoAoVertice(melhorServico.from);
+
+    // se o proximo serviço for um arco ou aresta obrigatorio, e houver um serviço associado o vertice de origem desse proximo serviço, execute o serviço do vertice primeiro
+    if(
+      (melhorServico.tipo == ARESTA || melhorServico.tipo == ARCO)  && 
+      servicoEmVerticeAssociadoAProximaOrigem != NULL
+    ) {
+      for(int i = 0; i < this->servicosPendentes.size(); i++) {
+        if(servicoEmVerticeAssociadoAProximaOrigem->id == this->servicosPendentes[i].id) {
+          melhorServico = this->servicosPendentes[i];
+          melhorIndice = i;
+          custoDeslocamentoFinal = this->grafo.getCustoCaminhoMinimo(verticeAtual, servicoEmVerticeAssociadoAProximaOrigem->from);
+        }
+      }
+    }
+
+    return { melhorIndice, custoDeslocamentoFinal };
+  }
+
+  tuple<int, int> encontrarServicoMaisProximoAoVerticeAtual(int verticeAtual, int cargaRestante) {
     int melhorIndice = -1;
     int menorCusto = INT_MAX;
     Servico melhorServico;
@@ -271,6 +321,22 @@ public:
     }
 
     return { melhorIndice, menorCusto };
+  }
+
+  /**
+   * a ideia a seguir consiste em, quando a capacidade estiver acabando, tentar buscar serviços que sejam mais próximos ao depósito, de forma a não se afastar ainda mais e ter que voltar depois sem capacidade.
+   * a princípio, achei que essa abordagem melhoraria MUITO o custo das rotas, mas não foi o que aconteceu.
+   * na maioria das instâncias (não todas), o custo das rotas aumentou ao invés de diminuir.
+   * vamos manter o código comentado para fins de documentação da tentativa de melhoria.
+   */
+  tuple<int, int> encontrarMelhorServico(int verticeAtual, int cargaRestante) {
+    return this->encontrarServicoMaisProximoAoVerticeAtual(verticeAtual, cargaRestante);
+
+    // if(cargaRestante <= this->capacidadeVeiculo * 0.2) {
+    //   return this->encontrarServicoIntermediarioEntreDepositoEVerticeAtual(verticeAtual, cargaRestante);
+    // } else {
+    //   return this->encontrarServicoMaisProximoAoVerticeAtual(verticeAtual, cargaRestante);
+    // }
   }
 
   void atenderServico(Servico& servico, Rota& rotaAtual, int& cargaRestante, int& verticeAtual, int menorCusto) {
