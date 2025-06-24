@@ -147,35 +147,13 @@ private:
     cout << endl;
   }
 
-  void imprimirServicosOrdenadosPendentes(vector<Servico> servicos) {
-    for(const auto& servico : servicos) {
-      if(servico.tipo == NO && !servico.atendido) {
-        cout << "NO: " << servico.from << endl;
-        cout << "\t distancia do depósito: " 
-          << this->grafo.getCustoCaminhoMinimo(servico.from, this->verticeDeposito) << endl;
-      } else if(servico.tipo == ARESTA && !servico.atendido) {
-        cout << "ARESTA: " << servico.from << "->" << servico.to << endl;
-        cout << "\t distancia do depósito: " 
-          << this->grafo.getCustoCaminhoMinimo(servico.to, this->verticeDeposito) << endl;
-      } else if(servico.tipo == ARCO && !servico.atendido) {
-        cout << "ARCO: " << servico.from << "->" << servico.to << endl;
-        cout << "\t distancia do depósito: " 
-          << this->grafo.getCustoCaminhoMinimo(servico.to, this->verticeDeposito) << endl;
-      }
-    }
-    
-    cout << endl;
-  }
-
 public:
   Solucao(const Grafo& grafo, int capacidadeVeiculo, int verticeDeposito)
   : grafo(grafo), capacidadeVeiculo(capacidadeVeiculo), verticeDeposito(verticeDeposito) {
     this->identificarServicosPendentes();
-    this->encontrarRotas();
   }
 
   void encontrarRotas() {
-    
     while(this->aindaExisteServicoPendente()) {
       int cargaRestante = this->capacidadeVeiculo;
       int verticeAtual = this->verticeDeposito;
@@ -184,19 +162,15 @@ public:
       rotaAtual.caminho.push_back(this->verticeDeposito);
 
       ServicoPrestadoDto servicoPrestadoDto(TipoServicoPrestado::D, "0", this->verticeDeposito, this->verticeDeposito);
-
       rotaAtual.servicosPrestados.push_back({servicoPrestadoDto});
 
       while(true) {
-
         tuple<int, int> melhorServico = this->encontrarMelhorServico(verticeAtual, cargaRestante);
         auto [melhorIndice, menorCusto] = melhorServico;
         
         // não há alternativas de caminho, voltar ao deposito
         if(melhorIndice == -1) { 
-
           ServicoPrestadoDto servicoPrestadoDto(TipoServicoPrestado::D, "0", this->verticeDeposito, this->verticeDeposito);
-
           rotaAtual.servicosPrestados.push_back({servicoPrestadoDto});
 
           int custoAteDeposito = this->grafo.getCustoCaminhoMinimo(verticeAtual, this->verticeDeposito);
@@ -208,7 +182,6 @@ public:
         }
 
         Servico& servico = this->servicosPendentes[melhorIndice];
-
         this->atenderServico(servico, rotaAtual, cargaRestante, verticeAtual, menorCusto);
       }
     }
@@ -427,10 +400,3 @@ public:
     out.close();
   }
 };
-
-
-/**
- * TODO:
- * saída de acordo com o esperado
- * atualizar readme com instruções sobre como passar arquivo via CLI
- */
