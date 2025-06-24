@@ -20,6 +20,7 @@ private:
   int custoTotal = 0;
   vector<Rota> rotas;
   vector<Servico> servicosPendentes;
+  vector<Servico> servicosPendentesOrdenadosProximidadeDepositoAsc;
   vector<Rota> rotasSolucao;
 
   void identificarServicosPendentes() {
@@ -53,6 +54,38 @@ private:
     }
   }
 
+  void identificarServicosPendentesProximosDeposito() {
+    vector<Servico> servicosOrdenadosPorProximidadeDeposito;
+    for(int i = 0; i < this->servicosPendentes.size(); i++) {
+      servicosOrdenadosPorProximidadeDeposito.push_back(this->servicosPendentes[i]);
+    }
+
+    sort(
+      servicosOrdenadosPorProximidadeDeposito.begin(), 
+      servicosOrdenadosPorProximidadeDeposito.end(),
+      [ this ](const Servico& a, const Servico& b) {
+        int distanciaA;
+        int distanciaB;
+
+        if(a.tipo == NO) {
+          distanciaA = this->grafo.getCustoCaminhoMinimo(a.from, this->verticeDeposito);
+        } else {
+          distanciaA = this->grafo.getCustoCaminhoMinimo(a.to, this->verticeDeposito);
+        }
+
+        if(b.tipo == NO) {
+          distanciaB = this->grafo.getCustoCaminhoMinimo(b.from, this->verticeDeposito);
+        } else {
+          distanciaB = this->grafo.getCustoCaminhoMinimo(b.to, this->verticeDeposito);
+        }
+
+        return distanciaA < distanciaB;
+      }
+    );
+
+    this->servicosPendentesOrdenadosProximidadeDepositoAsc = servicosOrdenadosPorProximidadeDeposito;
+  }
+
   void imprimirServicosPendentes() {
     cout << "vertices: " << endl;
     for(const auto& servico : this->servicosPendentes) {
@@ -76,6 +109,26 @@ private:
         cout << servico.from << "->" << servico.to << endl;
       }
     }
+    cout << endl;
+  }
+
+  void imprimirServicosOrdenadosPendentes(vector<Servico> servicos) {
+    for(const auto& servico : servicos) {
+      if(servico.tipo == NO && !servico.atendido) {
+        cout << "NO: " << servico.from << endl;
+        cout << "\t distancia do depósito: " 
+          << this->grafo.getCustoCaminhoMinimo(servico.from, this->verticeDeposito) << endl;
+      } else if(servico.tipo == ARESTA && !servico.atendido) {
+        cout << "ARESTA: " << servico.from << "->" << servico.to << endl;
+        cout << "\t distancia do depósito: " 
+          << this->grafo.getCustoCaminhoMinimo(servico.to, this->verticeDeposito) << endl;
+      } else if(servico.tipo == ARCO && !servico.atendido) {
+        cout << "ARCO: " << servico.from << "->" << servico.to << endl;
+        cout << "\t distancia do depósito: " 
+          << this->grafo.getCustoCaminhoMinimo(servico.to, this->verticeDeposito) << endl;
+      }
+    }
+    
     cout << endl;
   }
 
