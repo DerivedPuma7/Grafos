@@ -316,6 +316,7 @@ public:
       for(int i = 0; i < this->servicosPendentes.size(); i++) {
         if(servicoEmVerticeAssociadoAProximaOrigem->id == this->servicosPendentes[i].id) {
           melhorIndice = i;
+          menorCusto = this->grafo.getCustoCaminhoMinimo(verticeAtual, servicoEmVerticeAssociadoAProximaOrigem->from);
         }
       }
     }
