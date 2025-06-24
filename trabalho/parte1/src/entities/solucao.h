@@ -20,7 +20,6 @@ private:
   int custoTotal = 0;
   vector<Rota> rotas;
   vector<Servico> servicosPendentes;
-  vector<Servico> servicosPendentesOrdenadosProximidadeDepositoAsc;
   vector<Rota> rotasSolucao;
 
   void identificarServicosPendentes() {
