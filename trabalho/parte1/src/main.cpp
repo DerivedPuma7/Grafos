@@ -136,6 +136,8 @@ void processarArquivoUnico(string inputDir, string filename) {
 
   logger("Encontrando rotas para: " + grafo.getNome());
   Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+  solucao.encontrarRotas();
+  solucao.otimizarCom2opt();
   
   clock_t final = clock();
   int totalClocks = (final - inicio);
@@ -166,6 +168,8 @@ void processarDiretorioDeEntrada(string inputDir) {
     
     logger("Encontrando rotas para: " + grafo.getNome());
     Solucao solucao(grafo, graphData.capacity, graphData.depotNode);
+    solucao.encontrarRotas();
+    solucao.otimizarCom2opt();
     
     clock_t final = clock();
     int totalClocks = (final - inicio);
@@ -189,6 +193,7 @@ int main(int argc, char* argv[]) {
     string filename = argv[1];
     cout << "\n\tProcessando arquivo. Aguarde...\n";
     processarArquivoUnico(inputFilesDir, filename);
+    return 0;
   }
   if (argc < 2) {
     cout << "\n\tProcessando diretório de entrada. Aguarde...\n";

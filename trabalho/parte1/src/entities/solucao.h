@@ -53,6 +53,73 @@ private:
     }
   }
 
+  int calcularCustoRota(const vector<Servico>& servicos) {
+    if (servicos.empty()) {
+      return 0;
+    }
+    int custoRota = 0;
+    int verticeFinalAnterior = this->verticeDeposito;
+
+    for (const auto& servico : servicos) {
+      int verticeInicioAtual = servico.from;
+      custoRota += this->grafo.getCustoCaminhoMinimo(verticeFinalAnterior, verticeInicioAtual);
+      custoRota += servico.custoServico;
+      verticeFinalAnterior = (servico.tipo == NO) ? servico.from : servico.to;
+    }
+    custoRota += this->grafo.getCustoCaminhoMinimo(verticeFinalAnterior, this->verticeDeposito);
+    return custoRota;
+  }
+
+  bool aplicar2optEmRota(Rota& rota) {
+    bool houveMelhoraNestaRota = false;
+    if (rota.servicosAtendidos.size() < 2) {
+      return false;
+    }
+
+    vector<Servico> melhorSequencia = rota.servicosAtendidos;
+    while (true) {
+      bool melhoriaNestaIteracao = false;
+      int melhorCustoIteracao = rota.custoTotal;
+
+      for (int i = 0; i < rota.servicosAtendidos.size() - 1; ++i) {
+        for (int j = i + 1; j < rota.servicosAtendidos.size(); ++j) {
+          vector<Servico> novaSequencia = melhorSequencia;
+
+          bool contemArcoDirecionado = false;
+          for (int k = i + 1; k <= j; ++k) {
+            if (novaSequencia[k].tipo == ARCO) {
+              contemArcoDirecionado = true;
+              break;
+            }
+          }
+          if (contemArcoDirecionado) {
+            continue; // não podemos inverter arcos
+          }
+
+          std::reverse(novaSequencia.begin() + i + 1, novaSequencia.begin() + j + 1);
+
+          int novoCusto = this->calcularCustoRota(novaSequencia);
+
+          if (novoCusto < melhorCustoIteracao) {
+            melhorCustoIteracao = novoCusto;
+            melhorSequencia = novaSequencia;
+            melhoriaNestaIteracao = true;
+          }
+        }
+      }
+
+      if (melhoriaNestaIteracao) {
+        rota.servicosAtendidos = melhorSequencia;
+        rota.custoTotal = melhorCustoIteracao;
+        houveMelhoraNestaRota = true;
+      } else {
+        // a rota está otimizada
+        break;
+      }
+    }
+    return houveMelhoraNestaRota;
+  }
+
   void imprimirServicosPendentes() {
     cout << "vertices: " << endl;
     for(const auto& servico : this->servicosPendentes) {
@@ -83,11 +150,9 @@ public:
   Solucao(const Grafo& grafo, int capacidadeVeiculo, int verticeDeposito)
   : grafo(grafo), capacidadeVeiculo(capacidadeVeiculo), verticeDeposito(verticeDeposito) {
     this->identificarServicosPendentes();
-    this->encontrarRotas();
   }
 
   void encontrarRotas() {
-    
     while(this->aindaExisteServicoPendente()) {
       int cargaRestante = this->capacidadeVeiculo;
       int verticeAtual = this->verticeDeposito;
@@ -96,19 +161,15 @@ public:
       rotaAtual.caminho.push_back(this->verticeDeposito);
 
       ServicoPrestadoDto servicoPrestadoDto(TipoServicoPrestado::D, "0", this->verticeDeposito, this->verticeDeposito);
-
       rotaAtual.servicosPrestados.push_back({servicoPrestadoDto});
 
       while(true) {
-
         tuple<int, int> melhorServico = this->encontrarMelhorServico(verticeAtual, cargaRestante);
         auto [melhorIndice, menorCusto] = melhorServico;
         
         // não há alternativas de caminho, voltar ao deposito
         if(melhorIndice == -1) { 
-
           ServicoPrestadoDto servicoPrestadoDto(TipoServicoPrestado::D, "0", this->verticeDeposito, this->verticeDeposito);
-
           rotaAtual.servicosPrestados.push_back({servicoPrestadoDto});
 
           int custoAteDeposito = this->grafo.getCustoCaminhoMinimo(verticeAtual, this->verticeDeposito);
@@ -120,7 +181,6 @@ public:
         }
 
         Servico& servico = this->servicosPendentes[melhorIndice];
-
         this->atenderServico(servico, rotaAtual, cargaRestante, verticeAtual, menorCusto);
       }
     }
@@ -138,10 +198,60 @@ public:
   }
 
   /**
-   * TODO
-   * precisamos melhorar esses IFs para deixar mais claro os seus motivos
+   * esse método tenta encontrar um serviço intermediário entre o depósito e o vértice atual, de forma a otimizar a rota evitando que o veículo se afaste muito do depósito quando a carga estiver acabando.
+   * essa abordagem não funcionou muito bem, mas vamos manter o código para fins de documentação.
    */
-  tuple<int, int> encontrarMelhorServico(int verticeAtual, int cargaRestante) {
+  tuple<int, int> encontrarServicoIntermediarioEntreDepositoEVerticeAtual(int verticeAtual, int cargaRestante) {
+    int melhorIndice = -1;
+    int menorCusto = INT_MAX;
+    Servico melhorServico;
+    int custoDeslocamentoFinal = -1;
+
+    for(int i = 0; i < this->servicosPendentes.size(); i++) {
+      Servico s = this->servicosPendentes[i];
+      if(s.atendido || s.demanda > cargaRestante) continue;
+
+      int destino = s.from;
+      if(verticeAtual == s.from && s.tipo != NO) {
+        destino = s.to;
+      }
+
+      int custoAteServico = this->grafo.getCustoCaminhoMinimo(verticeAtual, destino);
+      int custoServicoAteDeposito = this->grafo.getCustoCaminhoMinimo(destino, this->verticeDeposito);
+      int custoTotal = custoAteServico + custoServicoAteDeposito;
+
+      // priorizando serviços em arcos e arestas
+      if(
+        (custoTotal < menorCusto) ||
+        (custoTotal == menorCusto && s.tipo != NO)
+      ) {
+        melhorServico = s;
+        melhorIndice = i;
+        menorCusto = custoTotal;
+        custoDeslocamentoFinal = custoAteServico;
+      }
+    }
+
+    Servico *servicoEmVerticeAssociadoAProximaOrigem = this->getServicoPendenteAssociadoAoVertice(melhorServico.from);
+
+    // se o proximo serviço for um arco ou aresta obrigatorio, e houver um serviço associado o vertice de origem desse proximo serviço, execute o serviço do vertice primeiro
+    if(
+      (melhorServico.tipo == ARESTA || melhorServico.tipo == ARCO)  && 
+      servicoEmVerticeAssociadoAProximaOrigem != NULL
+    ) {
+      for(int i = 0; i < this->servicosPendentes.size(); i++) {
+        if(servicoEmVerticeAssociadoAProximaOrigem->id == this->servicosPendentes[i].id) {
+          melhorServico = this->servicosPendentes[i];
+          melhorIndice = i;
+          custoDeslocamentoFinal = this->grafo.getCustoCaminhoMinimo(verticeAtual, servicoEmVerticeAssociadoAProximaOrigem->from);
+        }
+      }
+    }
+
+    return { melhorIndice, custoDeslocamentoFinal };
+  }
+
+  tuple<int, int> encontrarServicoMaisProximoAoVerticeAtual(int verticeAtual, int cargaRestante) {
     int melhorIndice = -1;
     int menorCusto = INT_MAX;
     Servico melhorServico;
@@ -178,11 +288,28 @@ public:
       for(int i = 0; i < this->servicosPendentes.size(); i++) {
         if(servicoEmVerticeAssociadoAProximaOrigem->id == this->servicosPendentes[i].id) {
           melhorIndice = i;
+          menorCusto = this->grafo.getCustoCaminhoMinimo(verticeAtual, servicoEmVerticeAssociadoAProximaOrigem->from);
         }
       }
     }
 
     return { melhorIndice, menorCusto };
+  }
+
+  /**
+   * a ideia a seguir consiste em, quando a capacidade estiver acabando, tentar buscar serviços que sejam mais próximos ao depósito, de forma a não se afastar ainda mais e ter que voltar depois sem capacidade.
+   * a princípio, achei que essa abordagem melhoraria MUITO o custo das rotas, mas não foi o que aconteceu.
+   * na maioria das instâncias (não todas), o custo das rotas aumentou ao invés de diminuir.
+   * vamos manter o código comentado para fins de documentação da tentativa de melhoria.
+   */
+  tuple<int, int> encontrarMelhorServico(int verticeAtual, int cargaRestante) {
+    return this->encontrarServicoMaisProximoAoVerticeAtual(verticeAtual, cargaRestante);
+
+    // if(cargaRestante <= this->capacidadeVeiculo * 0.2) {
+    //   return this->encontrarServicoIntermediarioEntreDepositoEVerticeAtual(verticeAtual, cargaRestante);
+    // } else {
+    //   return this->encontrarServicoMaisProximoAoVerticeAtual(verticeAtual, cargaRestante);
+    // }
   }
 
   void atenderServico(Servico& servico, Rota& rotaAtual, int& cargaRestante, int& verticeAtual, int menorCusto) {
@@ -212,6 +339,23 @@ public:
       }
     }
     return NULL;
+  }
+
+  void otimizarCom2opt() {
+    bool melhoriaGlobal = true;
+    while (melhoriaGlobal) {
+      melhoriaGlobal = false;
+      for (auto& rota : this->rotasSolucao) {
+        if (aplicar2optEmRota(rota)) {
+          melhoriaGlobal = true;
+        }
+      }
+    }
+    // recalcular o custo total
+    this->custoTotal = 0;
+    for(const auto& rota : this->rotasSolucao) {
+      this->custoTotal += rota.custoTotal;
+    }
   }
 
   void criarDiretorioResultado() {
@@ -255,10 +399,3 @@ public:
     out.close();
   }
 };
-
-
-/**
- * TODO:
- * saída de acordo com o esperado
- * atualizar readme com instruções sobre como passar arquivo via CLI
- */
