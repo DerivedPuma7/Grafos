@@ -48,13 +48,13 @@ grafos/
 ## Explicações gerais sobre a solução e otimização
 - Utilizamos um algoritmo construtivo, que parte do nada e chega em uma solução viável ao problema.
 - A abordagem é muito semelhante ao algoritmo de "Caminho mais Curto" para solução do TSP. Foi adaptado para o nosso problema, mas a essência é a mesma.
-- Para a otimização, utilizamos a abordagem conhecida como 2-opt, que busca inverter segmentos em busca de diminuir o custo da solução.
+- Para a otimização, utilizamos a abordagem conhecida como 2-opt, que tenta inverter segmentos em busca de diminuir o custo da solução.
 - Colocando em termos mais práticos, tentamos inverter a ordem com que os serviços são atendidos em uma rota e verificamos se a nova rota é melhor do que a original. Caso seja, ela é aceita. Caso não, mantemos a rota original.
 - ## Ressalva sobre a primeira tentativa de otimização
     - A primeira ideia que tentamos aplicar foi, quando a capacidade do veículo estivesse baixa, direcionar o veículo para um serviço intermediário entre a posição atual e o depósito, de maneira que o veículo não se afastasse ainda mais do depósito e tivesse que fazer uma viagem longa na volta ao depósito.
-    - Pensando na ideia parece ser uma ótima abordagem, e que o custo fosse ser reduzido. Mas esse não foi o resultado encontrado. O custo total para praticamente todas as instâncias aumentou ao invés de diminuir.
+    - Pensando na ideia, parece ser uma ótima abordagem, e que o custo fosse ser reduzido, mas esse não foi o resultado encontrado. O custo total para praticamente todas as instâncias aumentou ao invés de diminuir.
     - Eu não sei se a implementação foi incorreta ou se a ideia realmente não funciona, mas optamos por manter essa "otimização" fora da solução final.
-    - Mantemos as implementações no código para fim de documentação, mas elas não influenciam na solução final.
+    - Mantivemos as implementações no código para fim de documentação, mas elas não influenciam na solução final.
     - Há comentários explicativos na classe Solucao, mais especificamente nos métodos 'encontrarMelhorServico' e 'encontrarServicoIntermediarioEntreDepositoEVerticeAtual'
 
 ## Visualização dos resultados
